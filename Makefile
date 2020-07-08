@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build TenancyInformationApi
 
 .PHONY: serve
 serve:
-	docker-compose build base-api && docker-compose up base-api
+	docker-compose build TenancyInformationApi && docker-compose up TenancyInformationApi
 
 .PHONY: shell
 shell:
-	docker-compose run base-api bash
+	docker-compose run TenancyInformationApi bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+	docker-compose up test-database & docker-compose build TenancyInformationApi-test && docker-compose up TenancyInformationApi-test
 
 .PHONY: lint
 lint:
