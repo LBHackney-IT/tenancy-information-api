@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace TenancyInformationApi.Tests.V1.Gateways
 {
     //TODO: Rename Tests to match gateway name
-    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-TenancyInformationApi/wiki/Running-the-test-suite.
+    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-base-api/wiki/Running-the-test-suite.
     [TestFixture]
     public class ExampleGatewayTests : DatabaseTests
     {

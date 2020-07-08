@@ -104,10 +104,10 @@ jobs:
       - setup_remote_docker
       - run:
           name: build
-          command: docker-compose build TenancyInformationApi-test
+          command: docker-compose build tenancy-information-api-test
       - run:
           name: Run tests
-          command: docker-compose run TenancyInformationApi-test
+          command: docker-compose run tenancy-information-api-test
   assume-role-development:
     executor: docker-python
     steps:
