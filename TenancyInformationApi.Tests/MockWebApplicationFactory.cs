@@ -23,18 +23,18 @@ namespace TenancyInformationApi.Tests
         {
             builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
                 .UseStartup<Startup>();
-            builder.ConfigureServices(services =>
-            {
-                var dbBuilder = new DbContextOptionsBuilder();
-                dbBuilder.UseNpgsql(_connection);
-                var context = new DatabaseContext(dbBuilder.Options);
-                services.AddSingleton(context);
+            builder.ConfigureServices((System.Action<IServiceCollection>) (services =>
+             {
+                 var dbBuilder = new DbContextOptionsBuilder();
+                 dbBuilder.UseNpgsql(_connection);
+                 var context = new UhContext((DbContextOptions) dbBuilder.Options);
+                 services.AddSingleton(context);
 
-                var serviceProvider = services.BuildServiceProvider();
-                var dbContext = serviceProvider.GetRequiredService<DatabaseContext>();
+                 var serviceProvider = services.BuildServiceProvider();
+                 var dbContext = serviceProvider.GetRequiredService<UhContext>();
 
-                dbContext.Database.EnsureCreated();
-            });
+                 dbContext.Database.EnsureCreated();
+             }));
         }
     }
 }

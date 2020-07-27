@@ -2,8 +2,8 @@ using TenancyInformationApi.V1.Boundary.Response;
 
 namespace TenancyInformationApi.V1.UseCase.Interfaces
 {
-    public interface IGetByIdUseCase
+    public interface IGetTenancyByIdUseCase
     {
-        ResponseObject Execute(int id);
+        TenancyInformationResponse Execute(string id);
     }
 }
