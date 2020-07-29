@@ -1,3 +1,4 @@
+using System;
 using TenancyInformationApi.V1.UseCase;
 using FluentAssertions;
 using NUnit.Framework;
@@ -10,12 +11,8 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         [Test]
         public void ThrowsTestOpsErrorException()
         {
-            var ex = Assert.Throws<TestOpsErrorException>(
-                delegate { ThrowOpsErrorUsecase.Execute(); });
-
-            var expected = "This is a test exception to test our integrations";
-
-            ex.Message.Should().BeEquivalentTo(expected);
+            Action call = ThrowOpsErrorUsecase.Execute;
+            call.Should().Throw<TestOpsErrorException>();
         }
     }
 }

@@ -3,10 +3,8 @@ using TenancyInformationApi.V1.Domain;
 
 namespace TenancyInformationApi.V1.Gateways
 {
-    public interface IExampleGateway
+    public interface ITenancyGateway
     {
-        Entity GetEntityById(int id);
-
-        List<Entity> GetAll();
+        Tenancy GetById(string id);
     }
 }

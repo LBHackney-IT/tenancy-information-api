@@ -114,19 +114,18 @@ namespace TenancyInformationApi
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-            services.AddDbContext<DatabaseContext>(
+            services.AddDbContext<UhContext>(
                 opt => opt.UseNpgsql(connectionString));
         }
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IExampleGateway, ExampleGateway>();
+            services.AddScoped<ITenancyGateway, TenancyGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddScoped<IGetTenancyByIdUseCase, GetTenancyByIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -141,9 +140,12 @@ namespace TenancyInformationApi
                 app.UseHsts();
             }
 
-            //Get All ApiVersions,
-            var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-            _apiVersions = api.ApiVersionDescriptions.ToList();
+            if (app != null)
+            {
+                //Get All ApiVersions,
+                var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
+                _apiVersions = api.ApiVersionDescriptions.ToList();
+            }
 
             //Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>
