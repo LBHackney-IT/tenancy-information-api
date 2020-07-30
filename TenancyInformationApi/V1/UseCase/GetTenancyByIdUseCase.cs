@@ -15,8 +15,7 @@ namespace TenancyInformationApi.V1.UseCase
 
         public TenancyInformationResponse Execute(string id)
         {
-            var result = _gateway.GetById(id).ToResponse();
-            return result;
+            return _gateway.GetById(id).ToResponse();
         }
     }
 }

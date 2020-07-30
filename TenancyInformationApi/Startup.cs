@@ -140,12 +140,9 @@ namespace TenancyInformationApi
                 app.UseHsts();
             }
 
-            if (app != null)
-            {
-                //Get All ApiVersions,
-                var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-                _apiVersions = api.ApiVersionDescriptions.ToList();
-            }
+            //Get All ApiVersions,
+            var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
+            _apiVersions = api.ApiVersionDescriptions.ToList();
 
             //Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>

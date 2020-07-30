@@ -1,4 +1,6 @@
-CREATE TABLE tenagree(
+CREATE SCHEMA dbo;
+
+CREATE TABLE dbo.tenagree(
 	tag_ref char(11) NOT NULL PRIMARY KEY,
 	prop_ref char(12) NULL,
 	house_ref char(10) NULL,
@@ -14,12 +16,12 @@ CREATE TABLE tenagree(
 	u_saff_rentacc char(20) NULL
 );
 
-CREATE TABLE lookup (
+CREATE TABLE dbo.lookup (
     lu_ref char(100) NOT NULL PRIMARY KEY,
     lu_desc char(100) NOT NULL
 );
 
-CREATE TABLE tenure (
+CREATE TABLE dbo.tenure (
     ten_type char(100) NOT NULL PRIMARY KEY,
     ten_desc char(100) NOT NULL
 );

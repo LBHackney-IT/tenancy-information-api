@@ -41,27 +41,4 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             response.Should().BeEquivalentTo(expected);
         }
     }
-
-    public static class UhEntityHelper
-    {
-        public static UhTenancyAgreement FromDomain<T>(T tenancy) where T : Tenancy =>
-            new UhTenancyAgreement
-            {
-                TenancyAgreementReference = tenancy.TenancyReference,
-                CommencementOfTenancy = tenancy.CommencementOfTenancyDate,
-                EndOfTenancy = tenancy.EndOfTenancyDate,
-                CurrentRentBalance = tenancy.CurrentBalance,
-                IsPresent = tenancy.Present,
-                IsTerminated = tenancy.Terminated,
-                PaymentReference = tenancy.PaymentReference,
-                HouseholdReference = tenancy.HouseholdReference,
-                PropertyReference = tenancy.PropertyReference,
-                ServiceCharge = tenancy.Service,
-                OtherCharges = tenancy.OtherCharge,
-                UhTenureTypeId = tenancy.Tenure,
-                UhAgreementTypeId = tenancy.Agreement,
-                UhTenureType = new Fixture().Create<UhTenureType>(),
-                UhAgreementType = new Fixture().Create<UhAgreementType>()
-            };
-    }
 }

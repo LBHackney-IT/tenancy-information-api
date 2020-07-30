@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace TenancyInformationApi.V1.Infrastructure
 {
-    [Table("tenagree")]
+    [Table("tenagree", Schema = "dbo")]
     public class UhTenancyAgreement
     {
         [StringLength(11)] [Column("tag_ref"), Key] public string TenancyAgreementReference { get; set; }

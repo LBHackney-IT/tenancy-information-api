@@ -10,9 +10,9 @@ namespace TenancyInformationApi.V1.Factories
         {
             return new TenancyInformationResponse
             {
-                TenancyReference = tenancy?.TenancyReference,
-                CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate.ToString(CultureInfo.CurrentCulture),
-                EndOfTenancyDate = tenancy?.EndOfTenancyDate.ToString(CultureInfo.CurrentCulture),
+                TenancyAgreementReference = tenancy?.TenancyReference,
+                CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture),
+                EndOfTenancyDate = tenancy?.EndOfTenancyDate.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture),
                 CurrentBalance = tenancy?.CurrentBalance.ToString(CultureInfo.CurrentCulture),
                 Present = tenancy?.Present.ToString(CultureInfo.CurrentCulture),
                 Terminated = tenancy?.Terminated.ToString(CultureInfo.CurrentCulture),

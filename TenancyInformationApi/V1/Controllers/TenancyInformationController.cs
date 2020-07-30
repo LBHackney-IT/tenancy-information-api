@@ -42,7 +42,7 @@ namespace TenancyInformationApi.V1.Controllers
 
             var result = _getByIdUseCase.Execute(tenancyReference);
 
-            if (string.IsNullOrWhiteSpace(result.TenancyReference))
+            if (string.IsNullOrWhiteSpace(result.TenancyAgreementReference))
                 return NotFound($"No tenancy was found for the provided tag_ref {tenancyReference}.");
 
             return Ok(result);
@@ -55,11 +55,8 @@ namespace TenancyInformationApi.V1.Controllers
                    tenancyReference.Count(c => c == '/') is 1;
         }
 
-        // TODO: catch tag_refs entered with a slash instead of hyphen
-        // Two ideas:
         [HttpGet, Route("{badTenRef}/{caught}")]
-        public IActionResult CatchSlashedReference(string badTenRef, string caught) =>
-            // BadRequest("Replace '/' with '-' in provided tag_ref.");
-            ViewRecord(badTenRef + '-' + caught);
+        public IActionResult CatchSlashedReference() =>
+            BadRequest("Replace '/' with '-' in provided tag_ref.");
     }
 }
