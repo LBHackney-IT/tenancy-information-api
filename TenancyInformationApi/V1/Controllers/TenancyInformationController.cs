@@ -7,11 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace TenancyInformationApi.V1.Controllers
 {
     [ApiController]
-    //TODO: Rename to match the APIs endpoint
     [Route("api/v1/tenancies")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    //TODO: rename class to match the API name
     public class TenancyInformationController : BaseController
     {
         private readonly IGetTenancyByIdUseCase _getByIdUseCase;

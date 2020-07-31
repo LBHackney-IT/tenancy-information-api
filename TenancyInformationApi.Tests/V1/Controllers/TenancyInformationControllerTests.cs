@@ -29,6 +29,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             var response = _classUnderTest.ViewRecord("1231") as ObjectResult;
             response.Should().NotBeNull();
             response?.StatusCode.Should().Be(400);
+            response.Value.Should().Be("tag_ref is malformed or missing.");
         }
 
         [Test]
@@ -38,6 +39,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             // 123/1 is not in the db - should return NotFound404
             var response = _classUnderTest.ViewRecord("123-1") as ObjectResult;
             response?.StatusCode.Should().Be(404);
+            response.Value.Should().Be("No tenancy was found for the provided tag_ref 123/1.");
         }
 
         [Test]
