@@ -6,7 +6,7 @@ namespace TenancyInformationApi.Versioning
     {
         public static string GetFormattedApiVersion(this ApiVersion apiVersion)
         {
-            return $"v{apiVersion.ToString()}";
+            return apiVersion != null ? $"v{apiVersion.ToString()}" : null;
         }
     }
 }
