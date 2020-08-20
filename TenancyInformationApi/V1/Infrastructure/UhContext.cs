@@ -16,5 +16,10 @@ namespace TenancyInformationApi.V1.Infrastructure
         }
 
         public DbSet<UhTenancyAgreement> UhTenancyAgreements { get; set; }
+
+        public DbSet<UhAgreementType> UhTenancyAgreementsType { get; set; }
+
+        public DbSet<UhTenureType> UhTenure { get; set; }
+
     }
 }
