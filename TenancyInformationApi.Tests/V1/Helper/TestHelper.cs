@@ -9,17 +9,16 @@ namespace TenancyInformationApi.Tests.V1.Helper
 {
     public static class TestHelper
     {
-        public static UhTenancyAgreement CreateDatabasePersonEntity(string tenancyReference = null)
+        public static UhTenancyAgreement CreateDatabasePersonEntity( string tenancyReference )
         {
             var faker = new Fixture();
-            var fp = faker.Build<UhTenancyAgreement>()
-                .Without(resident => resident.UhTenureType)
-                .Without(resident => resident.UhAgreementType)
-                .Create();
- 
-            if (tenancyReference != null) fp.TenancyAgreementReference = tenancyReference;
+            var fp = faker.Create<UhTenancyAgreement>();
+            fp.TenancyAgreementReference = tenancyReference;
             return fp;
         }
+
+
+
 
 
     }

@@ -36,5 +36,7 @@ namespace TenancyInformationApi.V1.Factories
 
         public static List<Tenancy> ToDomain(this IEnumerable<UhTenancyAgreement> uhTenancyAgreements) =>
             uhTenancyAgreements.Select(tenancy => tenancy.ToDomain()).ToList();
+
+
     }
 }
