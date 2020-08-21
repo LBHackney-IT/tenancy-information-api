@@ -11,9 +11,9 @@ namespace TenancyInformationApi.V1.Factories
             return new TenancyInformationResponse
             {
                 TenancyAgreementReference = tenancy?.TenancyReference,
-                CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture),
-                EndOfTenancyDate = tenancy?.EndOfTenancyDate.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture),
-                CurrentBalance = tenancy?.CurrentBalance.ToString(CultureInfo.CurrentCulture),
+                CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate,
+                EndOfTenancyDate = tenancy?.EndOfTenancyDate,
+                CurrentBalance = tenancy?.CurrentBalance?.ToString(CultureInfo.CurrentCulture),
                 Present = tenancy?.Present.ToString(CultureInfo.CurrentCulture),
                 Terminated = tenancy?.Terminated.ToString(CultureInfo.CurrentCulture),
                 PaymentReference = tenancy?.PaymentReference,
@@ -21,8 +21,8 @@ namespace TenancyInformationApi.V1.Factories
                 PropertyReference = tenancy?.PropertyReference,
                 TenureType = tenancy?.Tenure,
                 AgreementType = tenancy?.Agreement,
-                Service = tenancy?.Service.ToString(CultureInfo.CurrentCulture),
-                OtherCharge = tenancy?.OtherCharge.ToString(CultureInfo.CurrentCulture)
+                Service = tenancy?.Service?.ToString(CultureInfo.CurrentCulture),
+                OtherCharge = tenancy?.OtherCharge?.ToString(CultureInfo.CurrentCulture)
             };
         }
     }

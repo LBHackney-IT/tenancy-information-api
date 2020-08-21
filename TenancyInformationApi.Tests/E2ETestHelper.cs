@@ -14,41 +14,35 @@ namespace TenancyInformationApi.Tests
     public static class E2ETestHelper
     {
 
-        public static TenancyInformationResponse AddPersonWithRelatedEntitiestoDb(UhContext context, string tenancyReference)
+        public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context, string tenancyReference)
         {
-            var fixture = new Fixture();
-            var resident = TestHelper.CreateDatabasePersonEntity(tenancyReference);
-            context.UhTenancyAgreements.Add(resident);
+            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference);
+            context.UhTenure.Add(tenancyAgreement.UhTenureType);
+            context.UhTenancyAgreementsType.Add(tenancyAgreement.UhAgreementType);
             context.SaveChanges();
+            tenancyAgreement.UhTenureType = null;
+            tenancyAgreement.UhAgreementType = null;
 
-            //var tenancyAgreement = new Fixture().Create<UhTenancyAgreement>();
-
-            //tenancyAgreement.TenancyAgreementReference = tenancyReference;
-
-            //var tenureType = new UhTenureType { UhTenureTypeId = fixture.Create<string>(), Description = fixture.Create<string>()};
-            //var agreementType = new UhAgreementType { UhAgreementTypeId = fixture.Create<string>(), Description = fixture.Create<string>() };
-            //context.UhTenancyAgreements.Add(tenancyAgreement);
-            //context.SaveChanges();
-
-            //return resident.ToDomain().ToResponse();
-            //var tenAgreement = tenancyAgreement.ToDomain();
+            context.UhTenancyAgreements.Add(tenancyAgreement);
+            context.SaveChanges();
 
             return new TenancyInformationResponse
             {
-                TenancyAgreementReference = resident.TenancyAgreementReference,
-                HouseholdReference = resident.HouseholdReference,
-                PropertyReference = resident.PropertyReference,
-                PaymentReference = resident.PaymentReference,
-                CommencementOfTenancyDate = resident?.CommencementOfTenancy.ToString(CultureInfo.CurrentCulture),
-                EndOfTenancyDate = resident?.EndOfTenancy.ToString(CultureInfo.CurrentCulture),
-                CurrentBalance = resident?.CurrentRentBalance.ToString(CultureInfo.CurrentCulture),
-                Present = resident?.IsPresent.ToString(CultureInfo.CurrentCulture),
-                Terminated = resident?.IsTerminated.ToString(CultureInfo.CurrentCulture),
-                Service = resident?.ServiceCharge.ToString(CultureInfo.CurrentCulture),
-                OtherCharge = resident?.OtherCharges.ToString(CultureInfo.CurrentCulture),
-                AgreementType = "agreement",
-                TenureType = "tenure"
-                    
+                TenancyAgreementReference = tenancyAgreement.TenancyAgreementReference,
+                HouseholdReference = tenancyAgreement.HouseholdReference,
+                PropertyReference = tenancyAgreement.PropertyReference,
+                PaymentReference = tenancyAgreement.PaymentReference,
+                CommencementOfTenancyDate = tenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
+                EndOfTenancyDate = tenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
+                CurrentBalance = tenancyAgreement.CurrentRentBalance?.ToString(CultureInfo.CurrentCulture),
+                Present = tenancyAgreement.IsPresent.ToString(CultureInfo.CurrentCulture),
+                Terminated = tenancyAgreement.IsTerminated.ToString(CultureInfo.CurrentCulture),
+                Service = tenancyAgreement.ServiceCharge?.ToString(CultureInfo.CurrentCulture),
+                OtherCharge = tenancyAgreement.OtherCharges?.ToString(CultureInfo.CurrentCulture),
+                AgreementType = $"{tenancyAgreement.UhAgreementTypeId}: {tenancyAgreement.UhAgreementType?.Description}",
+                TenureType = $"{tenancyAgreement.UhTenureTypeId}: {tenancyAgreement.UhTenureType?.Description}",
+
+
             };
 
         }

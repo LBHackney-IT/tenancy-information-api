@@ -17,11 +17,11 @@ namespace TenancyInformationApi.V1.Infrastructure
         [StringLength(1)] [Column("agr_type")] public string UhAgreementTypeId { get; set; }
         [Column("present")] public bool IsPresent { get; set; }
         [Column("terminated")] public bool IsTerminated { get; set; }
-        [Column("cur_bal")] public float CurrentRentBalance { get; set; }
-        [Column("service")] public float ServiceCharge { get; set; }
-        [Column("other_charge")] public float OtherCharges { get; set; }
-        [Column("cot")] public DateTime CommencementOfTenancy { get; set; }
-        [Column("eot")] public DateTime EndOfTenancy { get; set; }
+        [Column("cur_bal")] public float? CurrentRentBalance { get; set; }
+        [Column("service")] public float? ServiceCharge { get; set; }
+        [Column("other_charge")] public float? OtherCharges { get; set; }
+        [Column("cot")] public DateTime? CommencementOfTenancy { get; set; }
+        [Column("eot")] public DateTime? EndOfTenancy { get; set; }
 
         public UhTenureType UhTenureType { get; set; }
         public UhAgreementType UhAgreementType { get; set; }

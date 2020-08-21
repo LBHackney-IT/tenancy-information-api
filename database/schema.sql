@@ -1,4 +1,4 @@
-CREATE SCHEMA dbo;
+CREATE SCHEMA IF NOT EXISTS dbo;
 
 CREATE TABLE dbo.tenagree(
 	tag_ref char(11) NOT NULL PRIMARY KEY,
