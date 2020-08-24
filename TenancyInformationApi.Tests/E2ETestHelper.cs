@@ -1,12 +1,6 @@
-using AutoFixture;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using TenancyInformationApi.Tests.V1.Helper;
 using TenancyInformationApi.V1.Boundary.Response;
-using TenancyInformationApi.V1.Factories;
 using TenancyInformationApi.V1.Infrastructure;
 
 namespace TenancyInformationApi.Tests
@@ -14,14 +8,14 @@ namespace TenancyInformationApi.Tests
     public static class E2ETestHelper
     {
 
-        public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context, string tenancyReference)
+        public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context, string tenancyReference = null)
         {
-            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference);
-            context.UhTenure.Add(tenancyAgreement.UhTenureType);
-            context.UhTenancyAgreementsType.Add(tenancyAgreement.UhAgreementType);
+            var agreementLookup = TestHelper.CreateAgreementTypeLookup();
+            var tenureTypeLookup = TestHelper.CreateTenureTypeLookup();
+            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
+            context.UhTenure.Add(tenureTypeLookup);
+            context.UhTenancyAgreementsType.Add(agreementLookup);
             context.SaveChanges();
-            tenancyAgreement.UhTenureType = null;
-            tenancyAgreement.UhAgreementType = null;
 
             context.UhTenancyAgreements.Add(tenancyAgreement);
             context.SaveChanges();
@@ -39,8 +33,8 @@ namespace TenancyInformationApi.Tests
                 Terminated = tenancyAgreement.IsTerminated.ToString(CultureInfo.CurrentCulture),
                 Service = tenancyAgreement.ServiceCharge?.ToString(CultureInfo.CurrentCulture),
                 OtherCharge = tenancyAgreement.OtherCharges?.ToString(CultureInfo.CurrentCulture),
-                AgreementType = $"{tenancyAgreement.UhAgreementTypeId}: {tenancyAgreement.UhAgreementType?.Description}",
-                TenureType = $"{tenancyAgreement.UhTenureTypeId}: {tenancyAgreement.UhTenureType?.Description}",
+                AgreementType = $"{tenancyAgreement.UhAgreementTypeId}: {agreementLookup?.Description}",
+                TenureType = $"{tenureTypeLookup.UhTenureTypeId}: {tenureTypeLookup?.Description}",
 
 
             };

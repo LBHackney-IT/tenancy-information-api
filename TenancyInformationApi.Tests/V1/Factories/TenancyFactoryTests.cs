@@ -16,23 +16,25 @@ namespace TenancyInformationApi.Tests.V1.Factories
         public void EntityContainsAppropriateData()
         {
             var uhTenancy = _fixture.Create<UhTenancyAgreement>();
-
-            var domainTenancy = uhTenancy.ToDomain();
+            var agreementTypeDescription = _fixture.Create<UhAgreementType>();
+            var domainTenancy = uhTenancy.ToDomain(agreementTypeDescription);
 
             domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureTypeId);
             domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureType.Description);
-            domainTenancy.Agreement.Should().Contain(uhTenancy.UhAgreementTypeId);
-            domainTenancy.Agreement.Should().Contain(uhTenancy.UhAgreementType.Description);
+            domainTenancy.Agreement.Should().Contain(agreementTypeDescription.UhAgreementTypeId.ToString());
+            domainTenancy.Agreement.Should().Contain(agreementTypeDescription.Description);
         }
 
         [Test]
         public void ToDomainCorrectlyFormatsData()
         {
             var uhTenancy = _fixture.Create<UhTenancyAgreement>();
+            var agreementTypeDescription = _fixture.Create<UhAgreementType>();
+
             var tagRef = uhTenancy.TenancyAgreementReference;
             uhTenancy.TenancyAgreementReference = $" {tagRef}   ";
 
-            var domainTenancy = uhTenancy.ToDomain();
+            var domainTenancy = uhTenancy.ToDomain(agreementTypeDescription);
             var commencementDate = uhTenancy.CommencementOfTenancy;
             var endDate = uhTenancy.EndOfTenancy;
 
@@ -52,14 +54,19 @@ namespace TenancyInformationApi.Tests.V1.Factories
                 IsTerminated = false,
                 TenancyAgreementReference = "12345/3"
             };
+            var typeLookup = new UhAgreementType
+            {
+                UhAgreementTypeId = "M",
+                Description = "describing"
+            };
 
-            tenure.ToDomain().Should().BeEquivalentTo(new Tenancy
+            tenure.ToDomain(typeLookup).Should().BeEquivalentTo(new Tenancy
             {
                 Present = true,
                 Terminated = false,
-                TenancyReference = "12345/3"
+                TenancyReference = "12345/3",
+                Agreement = "M: describing"
             });
-
         }
     }
 }

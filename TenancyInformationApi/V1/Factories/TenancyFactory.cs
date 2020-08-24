@@ -7,14 +7,14 @@ namespace TenancyInformationApi.V1.Factories
 {
     public static class TenancyFactory
     {
-        public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement)
+        public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement, UhAgreementType agreementType)
         {
             var tenure = uhTenancyAgreement?.UhTenureTypeId == null && uhTenancyAgreement?.UhTenureType?.Description == null
                 ? null
                 : $"{uhTenancyAgreement?.UhTenureTypeId}: {uhTenancyAgreement?.UhTenureType?.Description}";
-            var agreement = uhTenancyAgreement?.UhAgreementTypeId == null && uhTenancyAgreement?.UhAgreementType?.Description == null
+            var agreement = agreementType?.UhAgreementTypeId == null
                 ? null
-                : $"{uhTenancyAgreement?.UhAgreementTypeId}: {uhTenancyAgreement?.UhAgreementType?.Description}";
+                : $"{agreementType.UhAgreementTypeId.Trim()}: {agreementType.Description?.Trim()}";
 
             return new Tenancy
             {
@@ -33,8 +33,5 @@ namespace TenancyInformationApi.V1.Factories
                 Agreement = agreement
             };
         }
-
-        public static List<Tenancy> ToDomain(this IEnumerable<UhTenancyAgreement> uhTenancyAgreements) =>
-            uhTenancyAgreements.Select(tenancy => tenancy.ToDomain()).ToList();
     }
 }
