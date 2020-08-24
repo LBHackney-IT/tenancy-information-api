@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using TenancyInformationApi.V1.Controllers;
 using FluentAssertions;
@@ -6,6 +8,7 @@ using NUnit.Framework;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Moq;
 using TenancyInformationApi.V1.Boundary.Response;
+using TenancyInformationApi.V1.UseCase;
 
 namespace TenancyInformationApi.Tests.V1.Controllers
 {
@@ -14,12 +17,14 @@ namespace TenancyInformationApi.Tests.V1.Controllers
     {
         private TenancyInformationController _classUnderTest;
         private Mock<IGetTenancyByIdUseCase> _getByIdMock;
+        private Mock<IListTenancies> _listTenancies;
 
         [SetUp]
         public void SetUp()
         {
             _getByIdMock = new Mock<IGetTenancyByIdUseCase>();
-            _classUnderTest = new TenancyInformationController(_getByIdMock.Object);
+            _listTenancies = new Mock<IListTenancies>();
+            _classUnderTest = new TenancyInformationController(_getByIdMock.Object, _listTenancies.Object);
         }
 
         [Test]
@@ -52,6 +57,20 @@ namespace TenancyInformationApi.Tests.V1.Controllers
 
             response.Should().NotBeNull();
             response?.StatusCode.Should().Be(200);
+        }
+
+        [Test]
+        public void ListTenanciesReturnsRecordsObtainedFromTheUseCase()
+        {
+            var fixture = new Fixture();
+            var stubbedResponse = new ListTenanciesResponse
+            {
+                Tenancies = fixture.CreateMany<TenancyInformationResponse>().ToList()
+            };
+            _listTenancies.Setup(x => x.Execute()).Returns(stubbedResponse);
+            var response = _classUnderTest.ListTenancies() as ObjectResult;
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().BeEquivalentTo(stubbedResponse);
         }
     }
 }

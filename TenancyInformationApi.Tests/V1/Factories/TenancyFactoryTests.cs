@@ -19,7 +19,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             var agreementTypeDescription = _fixture.Create<UhAgreementType>();
             var domainTenancy = uhTenancy.ToDomain(agreementTypeDescription);
 
-            domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureTypeId);
+            domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureType.UhTenureTypeId);
             domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureType.Description);
             domainTenancy.Agreement.Should().Contain(agreementTypeDescription.UhAgreementTypeId.ToString());
             domainTenancy.Agreement.Should().Contain(agreementTypeDescription.Description);

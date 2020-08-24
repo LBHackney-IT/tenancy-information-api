@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TenancyInformationApi.V1.Domain;
@@ -27,6 +28,23 @@ namespace TenancyInformationApi.V1.Gateways
                 .First(a => a.UhAgreementTypeId.Trim() == tenancyAgreement.UhAgreementTypeId.ToString());
 
             return tenancyAgreement.ToDomain(agreementLookup);
+        }
+
+        public List<Tenancy> ListTenancies()
+        {
+            var tenancies = (
+                from agreements in _uhContext.UhTenancyAgreements
+                join tenureType in _uhContext.UhTenure on agreements.UhTenureTypeId equals tenureType.UhTenureTypeId
+                join agreementType in _uhContext.UhTenancyAgreementsType on agreements.UhAgreementTypeId.ToString()
+                    equals agreementType.UhAgreementTypeId.Trim()
+                where agreementType.LookupType == "ZAG"
+                select new
+                {
+                    Agreement = agreements,
+                    TenureType = tenureType,
+                    AgreementType = agreementType
+                });
+            return tenancies.Select(t => t.Agreement.ToDomain(t.AgreementType, t.TenureType)).ToList();
         }
     }
 }
