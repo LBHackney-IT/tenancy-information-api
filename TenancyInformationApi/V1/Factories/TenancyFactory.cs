@@ -9,18 +9,18 @@ namespace TenancyInformationApi.V1.Factories
     {
         public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement)
         {
-            var tenure = string.Join(": ",
-                uhTenancyAgreement?.UhTenureTypeId,
-                uhTenancyAgreement?.UhTenureType.Description);
-            var agreement = string.Join(": ",
-                uhTenancyAgreement?.UhAgreementTypeId,
-                uhTenancyAgreement?.UhAgreementType.Description);
+            var tenure = uhTenancyAgreement?.UhTenureTypeId == null && uhTenancyAgreement?.UhTenureType?.Description == null
+                ? null
+                : $"{uhTenancyAgreement?.UhTenureTypeId}: {uhTenancyAgreement?.UhTenureType?.Description}";
+            var agreement = uhTenancyAgreement?.UhAgreementTypeId == null && uhTenancyAgreement?.UhAgreementType?.Description == null
+                ? null
+                : $"{uhTenancyAgreement?.UhAgreementTypeId}: {uhTenancyAgreement?.UhAgreementType?.Description}";
 
             return new Tenancy
             {
-                TenancyReference = uhTenancyAgreement?.TenancyAgreementReference,
-                CommencementOfTenancyDate = uhTenancyAgreement.CommencementOfTenancy,
-                EndOfTenancyDate = uhTenancyAgreement.EndOfTenancy,
+                TenancyReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
+                CommencementOfTenancyDate = uhTenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
+                EndOfTenancyDate = uhTenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
                 CurrentBalance = uhTenancyAgreement.CurrentRentBalance,
                 Present = uhTenancyAgreement.IsPresent,
                 Terminated = uhTenancyAgreement.IsTerminated,
