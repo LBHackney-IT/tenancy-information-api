@@ -1,15 +1,18 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Mvc;
 
 namespace TenancyInformationApi.V1.Infrastructure
 {
     [Table("lookup", Schema = "dbo")]
     public class UhAgreementType
     {
-        // [Column("lu_type")] private const string LookupType = "ZAG";
-        [StringLength(1)]
-        [Column("lu_ref"), Key] public string UhAgreementTypeId { get; set; }
+        [StringLength(3)]
+        [Column("lu_type")] public string LookupType { get; set; }
+
+        [StringLength(3)]
+        [Column("lu_ref")] public string UhAgreementTypeId { get; set; }
+
+        [MaxLength(80)]
         [Column("lu_desc")] public string Description { get; set; }
     }
 }

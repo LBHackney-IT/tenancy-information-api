@@ -14,7 +14,7 @@ namespace TenancyInformationApi.V1.Infrastructure
         [StringLength(12)] [Column("prop_ref")] public string PropertyReference { get; set; }
         [StringLength(20)] [Column("u_saff_rentacc")] public string PaymentReference { get; set; }
         [StringLength(3)] [Column("tenure")] public string UhTenureTypeId { get; set; }
-        [StringLength(1)] [Column("agr_type")] public string UhAgreementTypeId { get; set; }
+        [Column("agr_type")] public char UhAgreementTypeId { get; set; }
         [Column("present")] public bool IsPresent { get; set; }
         [Column("terminated")] public bool IsTerminated { get; set; }
         [Column("cur_bal")] public float? CurrentRentBalance { get; set; }
@@ -24,6 +24,5 @@ namespace TenancyInformationApi.V1.Infrastructure
         [Column("eot")] public DateTime? EndOfTenancy { get; set; }
 
         public UhTenureType UhTenureType { get; set; }
-        public UhAgreementType UhAgreementType { get; set; }
     }
 }

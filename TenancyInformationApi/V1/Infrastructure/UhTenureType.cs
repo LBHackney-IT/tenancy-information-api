@@ -7,7 +7,9 @@ namespace TenancyInformationApi.V1.Infrastructure
     public class UhTenureType
     {
         [StringLength(3)]
+        [Key]
         [Column("ten_type")] public string UhTenureTypeId { get; set; }
+        [StringLength(15)]
         [Column("ten_desc")] public string Description { get; set; }
     }
 }
