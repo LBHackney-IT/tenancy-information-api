@@ -1,3 +1,4 @@
+using System.Linq;
 using TenancyInformationApi.V1.Boundary.Response;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -6,46 +7,54 @@ using Microsoft.AspNetCore.Mvc;
 namespace TenancyInformationApi.V1.Controllers
 {
     [ApiController]
-    //TODO: Rename to match the APIs endpoint
     [Route("api/v1/tenancies")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    //TODO: rename class to match the API name
     public class TenancyInformationController : BaseController
     {
-        private readonly IGetAllUseCase _getAllUseCase;
-        private readonly IGetByIdUseCase _getByIdUseCase;
-        public TenancyInformationController(IGetAllUseCase getAllUseCase, IGetByIdUseCase getByIdUseCase)
+        private readonly IGetTenancyByIdUseCase _getByIdUseCase;
+        public TenancyInformationController(IGetTenancyByIdUseCase getByIdUseCase)
         {
-            _getAllUseCase = getAllUseCase;
             _getByIdUseCase = getByIdUseCase;
         }
 
-        //TODO: add xml comments containing information that will be included in the auto generated swagger docs (https://github.com/LBHackney-IT/lbh-base-api/wiki/Controllers-and-Response-Objects)
         /// <summary>
-        /// ...
+        /// Retrieve a single TenancyInformation object.
         /// </summary>
         /// <response code="200">...</response>
-        /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(ResponseObjectList), StatusCodes.Status200OK)]
+        /// <response code="400">tag_ref is malformed or missing.</response>
+        /// <response code="404">No tenancy was found for the provided tag_ref.</response>
+        [ProducesResponseType(typeof(TenancyInformationResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
         [HttpGet]
-        public IActionResult ListContacts()
+        [Route("{tenancyReference}")]
+        public IActionResult ViewRecord(string tenancyReference)
         {
-            return Ok(_getAllUseCase.Execute());
+            if (string.IsNullOrWhiteSpace(tenancyReference)) return BadRequest("No tag_ref provided.");
+
+            tenancyReference = tenancyReference.Replace('-', '/');
+
+            if (!ValidateTenancyReference(tenancyReference))
+                return BadRequest("tag_ref is malformed or missing.");
+
+            var result = _getByIdUseCase.Execute(tenancyReference);
+
+            if (string.IsNullOrWhiteSpace(result.TenancyAgreementReference))
+                return NotFound($"No tenancy was found for the provided tag_ref {tenancyReference}.");
+
+            return Ok(result);
         }
 
-        /// <summary>
-        /// ...
-        /// </summary>
-        /// <response code="200">...</response>
-        /// <response code="404">No ? found for the specified ID</response>
-        [ProducesResponseType(typeof(ResponseObject), StatusCodes.Status200OK)]
-        [HttpGet]
-        //TODO: rename to match the identifier that will be used
-        [Route("{yourId}")]
-        public IActionResult ViewRecord(int yourId)
+        private static bool ValidateTenancyReference(string tenancyReference)
         {
-            return Ok(_getByIdUseCase.Execute(yourId));
+            return !string.IsNullOrWhiteSpace(tenancyReference) &&
+                   !tenancyReference.Any(char.IsLetter) &&
+                   tenancyReference.Count(c => c == '/') is 1;
         }
+
+        [HttpGet, Route("{badTenRef}/{caught}")]
+        public IActionResult CatchSlashedReference() =>
+            BadRequest("Replace '/' with '-' in provided tag_ref.");
     }
 }
