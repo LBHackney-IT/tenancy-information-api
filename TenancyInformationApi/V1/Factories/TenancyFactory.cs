@@ -23,7 +23,7 @@ namespace TenancyInformationApi.V1.Factories
 
             return new Tenancy
             {
-                TenancyReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
+                TenancyAgreementReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
                 CommencementOfTenancyDate = uhTenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
                 EndOfTenancyDate = uhTenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
                 CurrentBalance = uhTenancyAgreement.CurrentRentBalance,

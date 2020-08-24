@@ -12,7 +12,7 @@ namespace TenancyInformationApi.V1.Factories
         {
             return new TenancyInformationResponse
             {
-                TenancyAgreementReference = tenancy?.TenancyReference,
+                TenancyAgreementReference = tenancy?.TenancyAgreementReference,
                 CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate,
                 EndOfTenancyDate = tenancy?.EndOfTenancyDate,
                 CurrentBalance = tenancy?.CurrentBalance?.ToString(CultureInfo.CurrentCulture),

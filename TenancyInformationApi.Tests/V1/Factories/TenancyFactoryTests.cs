@@ -38,7 +38,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             var commencementDate = uhTenancy.CommencementOfTenancy;
             var endDate = uhTenancy.EndOfTenancy;
 
-            domainTenancy.TenancyReference.Should().Be(tagRef);
+            domainTenancy.TenancyAgreementReference.Should().Be(tagRef);
             domainTenancy.CommencementOfTenancyDate.Should()
                 .Be($"{commencementDate.Value.Year:0000}-{commencementDate.Value.Month:00}-{commencementDate.Value.Day:00}");
             domainTenancy.EndOfTenancyDate.Should()
@@ -64,7 +64,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             {
                 Present = true,
                 Terminated = false,
-                TenancyReference = "12345/3",
+                TenancyAgreementReference = "12345/3",
                 Agreement = "M: describing"
             });
         }
