@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using TenancyInformationApi.Tests.V1.Helper;
 using TenancyInformationApi.V1.Boundary.Response;
@@ -12,11 +13,19 @@ namespace TenancyInformationApi.Tests
         {
             var agreementLookup = AddAgreementTypeToDatabase(context);
             var tenureTypeLookup = TestHelper.CreateTenureTypeLookup();
-            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
             context.UhTenure.Add(tenureTypeLookup);
             context.SaveChanges();
 
+            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
             context.UhTenancyAgreements.Add(tenancyAgreement);
+            context.SaveChanges();
+
+            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference);
+            context.UhProperties.Add(property);
+            context.SaveChanges();
+
+            var resident = TestHelper.CreateDatabaseResident(tenancyAgreement.HouseholdReference);
+            context.UhResidents.Add(resident);
             context.SaveChanges();
 
             return new TenancyInformationResponse
@@ -24,6 +33,8 @@ namespace TenancyInformationApi.Tests
                 TenancyAgreementReference = tenancyAgreement.TenancyAgreementReference,
                 HouseholdReference = tenancyAgreement.HouseholdReference,
                 PropertyReference = tenancyAgreement.PropertyReference,
+                Address = property.AddressLine1,
+                Postcode = property.Postcode,
                 PaymentReference = tenancyAgreement.PaymentReference,
                 CommencementOfTenancyDate = tenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
                 EndOfTenancyDate = tenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
@@ -34,6 +45,14 @@ namespace TenancyInformationApi.Tests
                 OtherCharge = tenancyAgreement.OtherCharges?.ToString(CultureInfo.CurrentCulture),
                 AgreementType = $"{tenancyAgreement.UhAgreementTypeId}: {agreementLookup?.Description}",
                 TenureType = $"{tenureTypeLookup.UhTenureTypeId}: {tenureTypeLookup?.Description}",
+                Residents = new List<Resident>{
+                    new Resident
+                    {
+                        FirstName = resident.FirstName,
+                        LastName = resident.LastName,
+                        DateOfBirth = resident.DateOfBirth.ToString("yyyy-MM-dd")
+                    }
+                }
             };
         }
 

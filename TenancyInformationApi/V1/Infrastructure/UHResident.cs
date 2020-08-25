@@ -9,11 +9,11 @@ namespace TenancyInformationApi.V1.Infrastructure
     {
         [Column("house_ref")]
         [StringLength(10)]
-        public string HouseRef { get; set; }
+        public string HouseReference { get; set; }
 
         [Column("person_no")]
         [Range(-99, 99)]
-        public int PersonNo { get; set; }
+        public int PersonNumber { get; set; }
 
         [Column("title")]
         [MaxLength(10)]
@@ -44,7 +44,7 @@ namespace TenancyInformationApi.V1.Infrastructure
         public bool AtRisk { get; set; }
 
         [Column("full_ed")]
-        public Boolean FullEd { get; set; }
+        public bool FullEd { get; set; }
 
         [Column("member_sid")]
         public int MemberSID { get; set; }

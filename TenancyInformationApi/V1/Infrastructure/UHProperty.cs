@@ -10,11 +10,11 @@ namespace TenancyInformationApi.V1.Infrastructure
         [Column("prop_ref")]
         [StringLength(12)]
         [Key]
-        public string PropertyRef { get; set; }
+        public string PropertyReference { get; set; }
 
         [Column("house_ref")]
         [StringLength(10)]
-        public string HouseRef { get; set; }
+        public string HouseReference { get; set; }
 
         [Column("address1")]
         [StringLength(255)]
@@ -22,7 +22,7 @@ namespace TenancyInformationApi.V1.Infrastructure
 
         [Column("post_code")]
         [StringLength(10)]
-        public string PostCode { get; set; }
+        public string Postcode { get; set; }
 
         [Column("u_llpg_ref")]
         [StringLength(16)]

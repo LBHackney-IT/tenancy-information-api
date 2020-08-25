@@ -55,7 +55,7 @@ namespace TenancyInformationApi.V1.Controllers
 
             var result = _getByIdUseCase.Execute(tenancyReference);
 
-            if (string.IsNullOrWhiteSpace(result.TenancyAgreementReference))
+            if (result == null)
                 return NotFound($"No tenancy was found for the provided tag_ref {tenancyReference}.");
 
             return Ok(result);

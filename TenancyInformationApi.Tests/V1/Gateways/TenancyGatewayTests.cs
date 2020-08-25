@@ -35,7 +35,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         public void GetByIdReturnsTheEntityIfItExists()
         {
             var tagRef = _fixture.Create<string>().Substring(0, 11);
-            var (uhTenancy, _, agreementTypeLookup) = SaveTenancyAndLookups(tagRef);
+            var (uhTenancy, _, agreementTypeLookup, property) = SaveTenancyPropertyAndLookups(tagRef);
 
             var expected = uhTenancy.ToDomain(agreementTypeLookup);
             var response = _classUnderTest.GetById(uhTenancy.TenancyAgreementReference);
@@ -47,7 +47,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         public void GetByIdWillOnlyGetLookupValuesForZAGTypeLookups()
         {
             var tagRef = _fixture.Create<string>().Substring(0, 11);
-            var (uhTenancy, _, agreementTypeLookup) = SaveTenancyAndLookups(tagRef);
+            var (uhTenancy, _, agreementTypeLookup, property) = SaveTenancyPropertyAndLookups(tagRef);
 
             var nonZagAgreementTypeLookup = _fixture.Build<UhAgreementType>()
                 .With(a => a.LookupType, "TAG")
@@ -71,24 +71,63 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         [Test]
         public void ListTenanciesGivenNoQueryParametersWillReturnAllSavedTenancies()
         {
-            var savedEntities = new List<(UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup)>
+            var savedEntities = new List<(UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property)>
             {
-                SaveTenancyAndLookups(),
-                SaveTenancyAndLookups(),
-                SaveTenancyAndLookups()
+                SaveTenancyPropertyAndLookups(),
+                SaveTenancyPropertyAndLookups(),
+                SaveTenancyPropertyAndLookups()
             };
 
-            var expectedResponses = savedEntities.Select(x => x.uhTenancy.ToDomain(x.agreementTypeLookup));
-            _classUnderTest.ListTenancies().Should().BeEquivalentTo(expectedResponses);
+            var expectedResponses = savedEntities.Select(x =>
+                x.uhTenancy.ToDomain(x.agreementTypeLookup, x.property));
+            _classUnderTest.ListTenancies().Should().BeEquivalentTo(expectedResponses, options => options.Excluding(t => t.Residents));
         }
 
-        private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup) SaveTenancyAndLookups(string tagRef = null)
+        [Test]
+        public void ListTenanciesReturnsAListOfResidentsForATenancy()
+        {
+            var savedEntities = SaveTenancyPropertyAndLookups();
+
+            var residents = new List<UHResident>
+            {
+                AddResidentToTheDatabase(savedEntities.uhTenancy.HouseholdReference, 1),
+                AddResidentToTheDatabase(savedEntities.uhTenancy.HouseholdReference, 2)
+            };
+
+            _classUnderTest.ListTenancies().First().Residents.Should().BeEquivalentTo(residents.ToDomain());
+        }
+
+        [Test]
+        public void ListTenanciesOnlyReturnsResidentsForTheCorrectHouseReference()
+        {
+            var savedEntities = SaveTenancyPropertyAndLookups();
+
+            var residentsOne = AddResidentToTheDatabase("diff house", 1);
+            var residentTwo = AddResidentToTheDatabase(savedEntities.uhTenancy.HouseholdReference, 2);
+
+            _classUnderTest.ListTenancies().First().Residents.Count.Should().Be(1);
+            _classUnderTest.ListTenancies().First().Residents.First().Should().BeEquivalentTo(residentTwo.ToDomain());
+        }
+
+        private UHResident AddResidentToTheDatabase(string houseReference, int personNumber)
+        {
+            var residentOne = _fixture.Build<UHResident>()
+                .With(r => r.HouseReference, houseReference)
+                .With(r => r.PersonNumber, personNumber)
+                .Create();
+            UhContext.UhResidents.Add(residentOne);
+            UhContext.SaveChanges();
+            return residentOne;
+        }
+
+        private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null)
         {
             tagRef ??= _fixture.Create<string>().Substring(0, 11);
             var tenureTypeLookup = AddTenureTypeLookupToDatabase();
             var agreementTypeLookup = AddAgreementTypeLookupToDatabase();
             var uhTenancy = AddTenancyAgreementToDatabase(tagRef, agreementTypeLookup, tenureTypeLookup);
-            return (uhTenancy, tenureTypeLookup, agreementTypeLookup);
+            var property = AddPropertyToDatabase(uhTenancy.PropertyReference);
+            return (uhTenancy, tenureTypeLookup, agreementTypeLookup, property);
         }
 
         private UhTenancyAgreement AddTenancyAgreementToDatabase(string tagRef, UhAgreementType agreementTypeLookup,
@@ -116,6 +155,14 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             UhContext.UhTenure.Add(tenureTypeLookup);
             UhContext.SaveChanges();
             return tenureTypeLookup;
+        }
+
+        private UHProperty AddPropertyToDatabase(string propertyReference)
+        {
+            var property = TestHelper.CreateDatabaseProperty(propertyReference);
+            UhContext.UhProperties.Add(property);
+            UhContext.SaveChanges();
+            return property;
         }
     }
 }

@@ -1,8 +1,12 @@
+using System.Collections.Generic;
+
 namespace TenancyInformationApi.V1.Boundary.Response
 {
     public class TenancyInformationResponse
     {
         public string TenancyAgreementReference { get; set; }
+        public string Address { get; set; }
+        public string Postcode { get; set; }
         public string CommencementOfTenancyDate { get; set; }
         public string EndOfTenancyDate { get; set; }
         public string CurrentBalance { get; set; }
@@ -15,5 +19,13 @@ namespace TenancyInformationApi.V1.Boundary.Response
         public string AgreementType { get; set; }
         public string Service { get; set; }
         public string OtherCharge { get; set; }
+        public List<Resident> Residents { get; set; }
+    }
+
+    public class Resident
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string DateOfBirth { get; set; }
     }
 }
