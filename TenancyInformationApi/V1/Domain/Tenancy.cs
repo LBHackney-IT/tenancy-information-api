@@ -2,7 +2,7 @@ namespace TenancyInformationApi.V1.Domain
 {
     public class Tenancy
     {
-        public string TenancyReference { get; set; }
+        public string TenancyAgreementReference { get; set; }
         public string CommencementOfTenancyDate { get; set; }
         public string EndOfTenancyDate { get; set; }
         public float? CurrentBalance { get; set; }

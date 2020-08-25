@@ -9,16 +9,21 @@ namespace TenancyInformationApi.V1.Factories
     {
         public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement, UhAgreementType agreementType)
         {
-            var tenure = uhTenancyAgreement?.UhTenureTypeId == null && uhTenancyAgreement?.UhTenureType?.Description == null
+            return uhTenancyAgreement.ToDomain(agreementType, uhTenancyAgreement.UhTenureType);
+        }
+
+        public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement, UhAgreementType agreementType, UhTenureType tenureType)
+        {
+            var tenure = tenureType?.UhTenureTypeId == null && tenureType?.Description == null
                 ? null
-                : $"{uhTenancyAgreement?.UhTenureTypeId}: {uhTenancyAgreement?.UhTenureType?.Description}";
+                : $"{tenureType?.UhTenureTypeId}: {tenureType?.Description}";
             var agreement = agreementType?.UhAgreementTypeId == null
                 ? null
                 : $"{agreementType.UhAgreementTypeId.Trim()}: {agreementType.Description?.Trim()}";
 
             return new Tenancy
             {
-                TenancyReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
+                TenancyAgreementReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
                 CommencementOfTenancyDate = uhTenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
                 EndOfTenancyDate = uhTenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
                 CurrentBalance = uhTenancyAgreement.CurrentRentBalance,

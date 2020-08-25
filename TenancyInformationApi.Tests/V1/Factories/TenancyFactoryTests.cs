@@ -19,7 +19,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             var agreementTypeDescription = _fixture.Create<UhAgreementType>();
             var domainTenancy = uhTenancy.ToDomain(agreementTypeDescription);
 
-            domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureTypeId);
+            domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureType.UhTenureTypeId);
             domainTenancy.Tenure.Should().Contain(uhTenancy.UhTenureType.Description);
             domainTenancy.Agreement.Should().Contain(agreementTypeDescription.UhAgreementTypeId.ToString());
             domainTenancy.Agreement.Should().Contain(agreementTypeDescription.Description);
@@ -38,7 +38,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             var commencementDate = uhTenancy.CommencementOfTenancy;
             var endDate = uhTenancy.EndOfTenancy;
 
-            domainTenancy.TenancyReference.Should().Be(tagRef);
+            domainTenancy.TenancyAgreementReference.Should().Be(tagRef);
             domainTenancy.CommencementOfTenancyDate.Should()
                 .Be($"{commencementDate.Value.Year:0000}-{commencementDate.Value.Month:00}-{commencementDate.Value.Day:00}");
             domainTenancy.EndOfTenancyDate.Should()
@@ -64,7 +64,7 @@ namespace TenancyInformationApi.Tests.V1.Factories
             {
                 Present = true,
                 Terminated = false,
-                TenancyReference = "12345/3",
+                TenancyAgreementReference = "12345/3",
                 Agreement = "M: describing"
             });
         }

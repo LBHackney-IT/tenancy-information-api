@@ -6,5 +6,6 @@ namespace TenancyInformationApi.V1.Gateways
     public interface ITenancyGateway
     {
         Tenancy GetById(string id);
+        List<Tenancy> ListTenancies();
     }
 }
