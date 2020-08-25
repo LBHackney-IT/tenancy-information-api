@@ -3,6 +3,7 @@ using TenancyInformationApi.V1.Boundary.Response;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TenancyInformationApi.V1.UseCase;
 
 namespace TenancyInformationApi.V1.Controllers
 {
@@ -13,15 +14,29 @@ namespace TenancyInformationApi.V1.Controllers
     public class TenancyInformationController : BaseController
     {
         private readonly IGetTenancyByIdUseCase _getByIdUseCase;
-        public TenancyInformationController(IGetTenancyByIdUseCase getByIdUseCase)
+        private readonly IListTenancies _listTenancies;
+
+        public TenancyInformationController(IGetTenancyByIdUseCase getByIdUseCase, IListTenancies listTenancies)
         {
             _getByIdUseCase = getByIdUseCase;
+            _listTenancies = listTenancies;
+        }
+
+        /// <summary>
+        /// Lists and queries tenancies.
+        /// </summary>
+        /// <response code="200">Success!</response>
+        [ProducesResponseType(typeof(ListTenanciesResponse), StatusCodes.Status200OK)]
+        [HttpGet]
+        public IActionResult ListTenancies()
+        {
+            return Ok(_listTenancies.Execute());
         }
 
         /// <summary>
         /// Retrieve a single TenancyInformation object.
         /// </summary>
-        /// <response code="200">...</response>
+        /// <response code="200">Success!</response>
         /// <response code="400">tag_ref is malformed or missing.</response>
         /// <response code="404">No tenancy was found for the provided tag_ref.</response>
         [ProducesResponseType(typeof(TenancyInformationResponse), StatusCodes.Status200OK)]

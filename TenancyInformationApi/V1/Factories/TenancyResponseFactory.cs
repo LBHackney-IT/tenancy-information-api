@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TenancyInformationApi.V1.Boundary.Response;
 using TenancyInformationApi.V1.Domain;
 
@@ -10,7 +12,7 @@ namespace TenancyInformationApi.V1.Factories
         {
             return new TenancyInformationResponse
             {
-                TenancyAgreementReference = tenancy?.TenancyReference,
+                TenancyAgreementReference = tenancy?.TenancyAgreementReference,
                 CommencementOfTenancyDate = tenancy?.CommencementOfTenancyDate,
                 EndOfTenancyDate = tenancy?.EndOfTenancyDate,
                 CurrentBalance = tenancy?.CurrentBalance?.ToString(CultureInfo.CurrentCulture),
@@ -24,6 +26,11 @@ namespace TenancyInformationApi.V1.Factories
                 Service = tenancy?.Service?.ToString(CultureInfo.CurrentCulture),
                 OtherCharge = tenancy?.OtherCharge?.ToString(CultureInfo.CurrentCulture)
             };
+        }
+
+        public static List<TenancyInformationResponse> ToResponse(this IEnumerable<Tenancy> tenancies)
+        {
+            return tenancies.Select(x => x.ToResponse()).ToList();
         }
     }
 }

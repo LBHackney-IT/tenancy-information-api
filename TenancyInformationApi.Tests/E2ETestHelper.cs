@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using TenancyInformationApi.Tests.V1.Helper;
 using TenancyInformationApi.V1.Boundary.Response;
@@ -7,14 +8,12 @@ namespace TenancyInformationApi.Tests
 {
     public static class E2ETestHelper
     {
-
         public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context, string tenancyReference = null)
         {
-            var agreementLookup = TestHelper.CreateAgreementTypeLookup();
+            var agreementLookup = AddAgreementTypeToDatabase(context);
             var tenureTypeLookup = TestHelper.CreateTenureTypeLookup();
             var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
             context.UhTenure.Add(tenureTypeLookup);
-            context.UhTenancyAgreementsType.Add(agreementLookup);
             context.SaveChanges();
 
             context.UhTenancyAgreements.Add(tenancyAgreement);
@@ -35,11 +34,22 @@ namespace TenancyInformationApi.Tests
                 OtherCharge = tenancyAgreement.OtherCharges?.ToString(CultureInfo.CurrentCulture),
                 AgreementType = $"{tenancyAgreement.UhAgreementTypeId}: {agreementLookup?.Description}",
                 TenureType = $"{tenureTypeLookup.UhTenureTypeId}: {tenureTypeLookup?.Description}",
-
-
             };
+        }
 
+        private static UhAgreementType AddAgreementTypeToDatabase(UhContext context)
+        {
+            var agreementLookup = TestHelper.CreateAgreementTypeLookup();
+            context.UhTenancyAgreementsType.Add(agreementLookup);
+            try
+            {
+                context.SaveChanges();
+                return agreementLookup;
+            }
+            catch (InvalidOperationException)
+            {
+                return AddAgreementTypeToDatabase(context);
+            }
         }
     }
 }
-
