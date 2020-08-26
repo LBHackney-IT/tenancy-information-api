@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace TenancyInformationApi.V1.Gateways
             return tenancyAgreement.ToDomain(agreementLookup);
         }
 
-        public List<Tenancy> ListTenancies()
+        public List<Tenancy> ListTenancies(int limit, int cursor)
         {
             var tenancies = (
                 from agreement in _uhContext.UhTenancyAgreements
@@ -39,19 +40,20 @@ namespace TenancyInformationApi.V1.Gateways
                     equals agreementType.UhAgreementTypeId.Trim()
                 join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
                 where agreementType.LookupType == "ZAG"
+                where Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "")) > cursor
+                orderby Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", ""))
                 select new
                 {
                     Agreement = agreement,
                     TenureType = tenureType,
                     AgreementType = agreementType,
                     Property = property,
-                    Residents = _uhContext.UhResidents.Where(r => r.HouseReference == agreement.HouseholdReference).ToList()
-                });
+                }).Take(limit);
 
             return tenancies.ToList().Select(t =>
             {
                 var domain = t.Agreement.ToDomain(t.AgreementType, t.TenureType, t.Property);
-                domain.Residents = t.Residents.ToDomain();
+                domain.Residents = _uhContext.UhResidents.Where(r => r.HouseReference == domain.HouseholdReference).ToDomain();
                 return domain;
             }).ToList();
         }

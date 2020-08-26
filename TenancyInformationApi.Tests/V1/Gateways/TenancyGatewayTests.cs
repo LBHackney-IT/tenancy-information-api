@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
+using Bogus;
 using TenancyInformationApi.V1.Gateways;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using NUnit.Framework;
 using TenancyInformationApi.Tests.V1.Helper;
 using TenancyInformationApi.V1.Domain;
@@ -65,7 +68,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         [Test]
         public void ListTenanciesWithNoSavedTenanciesReturnsAnEmptyList()
         {
-            _classUnderTest.ListTenancies().Should().BeEmpty();
+            _classUnderTest.ListTenancies(20, 0).Should().BeEmpty();
         }
 
         [Test]
@@ -73,14 +76,14 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         {
             var savedEntities = new List<(UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property)>
             {
-                SaveTenancyPropertyAndLookups(),
-                SaveTenancyPropertyAndLookups(),
-                SaveTenancyPropertyAndLookups()
+                SaveTenancyPropertyAndLookups(agreementLookupId: "a"),
+                SaveTenancyPropertyAndLookups(agreementLookupId: "b"),
+                SaveTenancyPropertyAndLookups(agreementLookupId: "c")
             };
 
             var expectedResponses = savedEntities.Select(x =>
                 x.uhTenancy.ToDomain(x.agreementTypeLookup, x.property));
-            _classUnderTest.ListTenancies().Should().BeEquivalentTo(expectedResponses, options => options.Excluding(t => t.Residents));
+            _classUnderTest.ListTenancies(20, 0).Should().BeEquivalentTo(expectedResponses, _ignoreResidents);
         }
 
         [Test]
@@ -94,7 +97,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
                 AddResidentToTheDatabase(savedEntities.uhTenancy.HouseholdReference, 2)
             };
 
-            _classUnderTest.ListTenancies().First().Residents.Should().BeEquivalentTo(residents.ToDomain());
+            _classUnderTest.ListTenancies(20, 0).First().Residents.Should().BeEquivalentTo(residents.ToDomain());
         }
 
         [Test]
@@ -105,8 +108,57 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             var residentsOne = AddResidentToTheDatabase("diff house", 1);
             var residentTwo = AddResidentToTheDatabase(savedEntities.uhTenancy.HouseholdReference, 2);
 
-            _classUnderTest.ListTenancies().First().Residents.Count.Should().Be(1);
-            _classUnderTest.ListTenancies().First().Residents.First().Should().BeEquivalentTo(residentTwo.ToDomain());
+            var listTenanciesResponse = _classUnderTest.ListTenancies(20, 0);
+            listTenanciesResponse.First().Residents.Count.Should().Be(1);
+            listTenanciesResponse.First().Residents.First().Should().BeEquivalentTo(residentTwo.ToDomain());
+        }
+
+        [Test]
+        public void ListTenanciesWillReturnLimitNumberOfRecordsReturned()
+        {
+            SaveTenancyPropertyAndLookups(agreementLookupId: "a");
+            SaveTenancyPropertyAndLookups(agreementLookupId: "b");
+            SaveTenancyPropertyAndLookups(agreementLookupId: "c");
+
+            var response = _classUnderTest.ListTenancies(2, 0);
+            response.Count.Should().Be(2);
+        }
+
+        [Test]
+        public void ListTenanciesWillReturnRecordsOrderedByTagRef()
+        {
+            var house2Tenancy2 = SaveTenancyPropertyAndLookups(tagRef: "45627/2", agreementLookupId: "a");
+            var house2Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "45627/1", agreementLookupId: "b");
+            var house1Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "12345/1", agreementLookupId: "c");
+
+            var response = _classUnderTest.ListTenancies(2, 0);
+            response.Count.Should().Be(2);
+            response.First()
+                .Should().BeEquivalentTo(ExpectedDomain(house1Tenancy1), _ignoreResidents);
+            response.Last()
+                .Should().BeEquivalentTo(ExpectedDomain(house2Tenancy1), _ignoreResidents);
+        }
+
+        [Test]
+        public void ListTenanciesWillOffsetByGivenCursor()
+        {
+            var house2Tenancy2 = SaveTenancyPropertyAndLookups(tagRef: "45627/2", agreementLookupId: "a");
+            var house2Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "45627/1", agreementLookupId: "b");
+            var house1Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "12345/1", agreementLookupId: "c");
+            var house3Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "77726/1", agreementLookupId: "e");
+
+            var response = _classUnderTest.ListTenancies(2, 456271);
+            response.Count.Should().Be(2);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(house2Tenancy2), _ignoreResidents);
+            response.Last().Should().BeEquivalentTo(ExpectedDomain(house3Tenancy1), _ignoreResidents);
+        }
+
+        private static readonly Func<EquivalencyAssertionOptions<Tenancy>, EquivalencyAssertionOptions<Tenancy>> _ignoreResidents =
+            options => options.Excluding(t => t.Residents);
+
+        private static Tenancy ExpectedDomain((UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) tenancyEntities)
+        {
+            return tenancyEntities.uhTenancy.ToDomain(tenancyEntities.agreementTypeLookup, tenancyEntities.property);
         }
 
         private UHResident AddResidentToTheDatabase(string houseReference, int personNumber)
@@ -120,11 +172,12 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return residentOne;
         }
 
-        private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null)
+        private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null, string agreementLookupId = null)
         {
-            tagRef ??= _fixture.Create<string>().Substring(0, 11);
+            var faker = new Faker();
+            tagRef ??= $"{faker.Random.Int(0, 99999)}/{faker.Random.Int(0, 99)}";
             var tenureTypeLookup = AddTenureTypeLookupToDatabase();
-            var agreementTypeLookup = AddAgreementTypeLookupToDatabase();
+            var agreementTypeLookup = AddAgreementTypeLookupToDatabase(agreementLookupId);
             var uhTenancy = AddTenancyAgreementToDatabase(tagRef, agreementTypeLookup, tenureTypeLookup);
             var property = AddPropertyToDatabase(uhTenancy.PropertyReference);
             return (uhTenancy, tenureTypeLookup, agreementTypeLookup, property);
@@ -141,9 +194,13 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return uhTenancy;
         }
 
-        private UhAgreementType AddAgreementTypeLookupToDatabase()
+        private UhAgreementType AddAgreementTypeLookupToDatabase(string agreementLookupId)
         {
             var agreementTypeLookup = TestHelper.CreateAgreementTypeLookup();
+            if (agreementLookupId != null)
+            {
+                agreementTypeLookup.UhAgreementTypeId = agreementLookupId;
+            }
             UhContext.UhTenancyAgreementsType.Add(agreementTypeLookup);
             UhContext.SaveChanges();
             return agreementTypeLookup;

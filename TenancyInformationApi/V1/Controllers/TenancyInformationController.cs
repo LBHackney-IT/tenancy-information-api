@@ -28,9 +28,9 @@ namespace TenancyInformationApi.V1.Controllers
         /// <response code="200">Success!</response>
         [ProducesResponseType(typeof(ListTenanciesResponse), StatusCodes.Status200OK)]
         [HttpGet]
-        public IActionResult ListTenancies()
+        public IActionResult ListTenancies([FromQuery] int limit = 20, [FromQuery] int cursor = 0)
         {
-            return Ok(_listTenancies.Execute());
+            return Ok(_listTenancies.Execute(limit, cursor));
         }
 
         /// <summary>

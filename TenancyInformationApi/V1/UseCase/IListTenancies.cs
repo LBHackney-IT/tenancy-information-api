@@ -4,6 +4,6 @@ namespace TenancyInformationApi.V1.UseCase
 {
     public interface IListTenancies
     {
-        ListTenanciesResponse Execute();
+        ListTenanciesResponse Execute(int limit, int cursor);
     }
 }

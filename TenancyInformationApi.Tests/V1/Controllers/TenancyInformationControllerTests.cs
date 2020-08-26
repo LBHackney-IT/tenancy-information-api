@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using TenancyInformationApi.V1.Controllers;
@@ -63,11 +62,27 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         public void ListTenanciesReturnsRecordsObtainedFromTheUseCase()
         {
             var fixture = new Fixture();
+            var limit = fixture.Create<int>();
+            var cursor = fixture.Create<int>();
             var stubbedResponse = new ListTenanciesResponse
             {
                 Tenancies = fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute()).Returns(stubbedResponse);
+            _listTenancies.Setup(x => x.Execute(limit, cursor)).Returns(stubbedResponse);
+            var response = _classUnderTest.ListTenancies(limit, cursor) as ObjectResult;
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().BeEquivalentTo(stubbedResponse);
+        }
+
+        [Test]
+        public void ListTenanciesWillAssignDefaultValuesToLimitAndCursor()
+        {
+            var fixture = new Fixture();
+            var stubbedResponse = new ListTenanciesResponse
+            {
+                Tenancies = fixture.CreateMany<TenancyInformationResponse>().ToList()
+            };
+            _listTenancies.Setup(x => x.Execute(20, 0)).Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies() as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
