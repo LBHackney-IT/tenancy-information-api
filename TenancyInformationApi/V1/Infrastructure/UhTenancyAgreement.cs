@@ -1,15 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace TenancyInformationApi.V1.Infrastructure
 {
     [Table("tenagree", Schema = "dbo")]
     public class UhTenancyAgreement
     {
-        [StringLength(11)] [Column("tag_ref"), Key] public string TenancyAgreementReference { get; set; }
+        [StringLength(11)]
+        [Column("tag_ref"), Key]
+        public string TenancyAgreementReference { get; set; }
         [StringLength(10)] [Column("house_ref")] public string HouseholdReference { get; set; }
         [StringLength(12)] [Column("prop_ref")] public string PropertyReference { get; set; }
         [StringLength(20)] [Column("u_saff_rentacc")] public string PaymentReference { get; set; }
@@ -24,5 +24,8 @@ namespace TenancyInformationApi.V1.Infrastructure
         [Column("eot")] public DateTime? EndOfTenancy { get; set; }
 
         public UhTenureType UhTenureType { get; set; }
+
+        [ForeignKey("PropertyReference")]
+        public UHProperty UhProperty { get; set; }
     }
 }

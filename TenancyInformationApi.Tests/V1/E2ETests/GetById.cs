@@ -1,14 +1,10 @@
-using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TenancyInformationApi.V1.Boundary.Response;
-using TenancyInformationApi.V1.Infrastructure;
 
 
 namespace TenancyInformationApi.Tests.V1.E2ETests
@@ -45,6 +41,7 @@ namespace TenancyInformationApi.Tests.V1.E2ETests
         {
             var tenancyReference = "1234/456";
             var expectedResponse = E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, tenancyReference);
+            RemoveAddressAndResidentExpectedDetails(expectedResponse);
 
             var uri = new Uri($"api/v1/tenancies/1234-456", UriKind.Relative);
             var response = Client.GetAsync(uri);
@@ -56,6 +53,13 @@ namespace TenancyInformationApi.Tests.V1.E2ETests
             var convertedResponse = JsonConvert.DeserializeObject<TenancyInformationResponse>(stringContent);
 
             convertedResponse.Should().BeEquivalentTo(expectedResponse);
+        }
+
+        private static void RemoveAddressAndResidentExpectedDetails(TenancyInformationResponse expectedResponse)
+        {
+            expectedResponse.Address = null;
+            expectedResponse.Postcode = null;
+            expectedResponse.Residents = null;
         }
     }
 }

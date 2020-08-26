@@ -33,18 +33,27 @@ namespace TenancyInformationApi.V1.Gateways
         public List<Tenancy> ListTenancies()
         {
             var tenancies = (
-                from agreements in _uhContext.UhTenancyAgreements
-                join tenureType in _uhContext.UhTenure on agreements.UhTenureTypeId equals tenureType.UhTenureTypeId
-                join agreementType in _uhContext.UhTenancyAgreementsType on agreements.UhAgreementTypeId.ToString()
+                from agreement in _uhContext.UhTenancyAgreements
+                join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
+                join agreementType in _uhContext.UhTenancyAgreementsType on agreement.UhAgreementTypeId.ToString()
                     equals agreementType.UhAgreementTypeId.Trim()
+                join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
                 where agreementType.LookupType == "ZAG"
                 select new
                 {
-                    Agreement = agreements,
+                    Agreement = agreement,
                     TenureType = tenureType,
-                    AgreementType = agreementType
+                    AgreementType = agreementType,
+                    Property = property,
+                    Residents = _uhContext.UhResidents.Where(r => r.HouseReference == agreement.HouseholdReference).ToList()
                 });
-            return tenancies.Select(t => t.Agreement.ToDomain(t.AgreementType, t.TenureType)).ToList();
+
+            return tenancies.ToList().Select(t =>
+            {
+                var domain = t.Agreement.ToDomain(t.AgreementType, t.TenureType, t.Property);
+                domain.Residents = t.Residents.ToDomain();
+                return domain;
+            }).ToList();
         }
     }
 }

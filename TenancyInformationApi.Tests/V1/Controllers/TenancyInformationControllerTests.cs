@@ -40,7 +40,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         [Test]
         public void ViewRecordReturnsNotFoundForMissingRecord()
         {
-            _getByIdMock.Setup(x => x.Execute("123/1")).Returns(new TenancyInformationResponse());
+            _getByIdMock.Setup(x => x.Execute("123/1")).Returns((TenancyInformationResponse) null);
             // 123/1 is not in the db - should return NotFound404
             var response = _classUnderTest.ViewRecord("123-1") as ObjectResult;
             response?.StatusCode.Should().Be(404);

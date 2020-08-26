@@ -45,12 +45,11 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void CanHandleNullTenancyObjects()
+        public void ReturnsNullIfGatewayReturnsNull()
         {
             var result = _classUnderTest.Execute(_tenancyRef);
 
-            result.Should().NotBeNull();
-            result.Should().BeOfType<TenancyInformationResponse>();
+            result.Should().BeNull();
         }
     }
 }
