@@ -133,17 +133,37 @@ namespace TenancyInformationApi.Tests.V1.UseCase
             SetupMockGatewayToExpectParameters(postcodeQuery: postcode);
             _mockPostcodeValidator.Setup(x => x.Execute(postcode)).Returns(false);
 
-            Func<ListTenanciesResponse> testDelegate = () => _classUnderTest.Execute(15, 3, null, postcode);
+            Func<ListTenanciesResponse> testDelegate = () => _classUnderTest.Execute(15, 3, null, postcode, false, false);
             testDelegate.Should().Throw<InvalidQueryParameterException>()
                 .WithMessage("The Postcode given does not have a valid format");
         }
 
+        [Test]
+        public void ExecuteCallsTheGatewayWithLeaseholdsFlag()
+        {
+            var leaseholdsOnly = _fixture.Create<bool>();
+            SetupMockGatewayToExpectParameters(leaseholdsOnly: leaseholdsOnly);
+
+            CallUseCaseWithArgs(20, 0, leaseholdsOnly: leaseholdsOnly);
+            _mockGateway.Verify();
+        }
+
+        public void ExecuteCallsTheGatewayWithFreeholdsFlag()
+        {
+            var freeholdsOnly = _fixture.Create<bool>();
+            SetupMockGatewayToExpectParameters(freeholdsOnly: freeholdsOnly);
+
+            CallUseCaseWithArgs(20, 0, freeholdsOnly: freeholdsOnly);
+            _mockGateway.Verify();
+        }
+
         private void SetupMockGatewayToExpectParameters(int? limit = null, int? cursor = null,
-            string addressQuery = null, string postcodeQuery = null, IEnumerable<Tenancy> stubbedTenancies = null)
+            string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false,
+            IEnumerable<Tenancy> stubbedTenancies = null)
         {
             _mockGateway
                 .Setup(x =>
-                    x.ListTenancies(It.Is<int>(l => CheckParameter(limit, l)), cursor ?? It.IsAny<int>(), addressQuery, postcodeQuery))
+                    x.ListTenancies(It.Is<int>(l => CheckParameter(limit, l)), cursor ?? It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly))
                 .Returns(stubbedTenancies?.ToList() ?? new List<Tenancy>()).Verifiable();
         }
 
@@ -152,9 +172,10 @@ namespace TenancyInformationApi.Tests.V1.UseCase
             return expectedParam == null || receivedParam == expectedParam.Value;
         }
 
-        private ListTenanciesResponse CallUseCaseWithArgs(int limit, int cursor, string address = null, string postcode = null)
+        private ListTenanciesResponse CallUseCaseWithArgs(int limit, int cursor, string address = null, string postcode = null,
+            bool leaseholdsOnly = false, bool freeholdsOnly = false)
         {
-            return _classUnderTest.Execute(limit, cursor, address, postcode);
+            return _classUnderTest.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly);
         }
     }
 }

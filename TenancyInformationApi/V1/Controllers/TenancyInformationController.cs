@@ -29,9 +29,10 @@ namespace TenancyInformationApi.V1.Controllers
         [ProducesResponseType(typeof(ListTenanciesResponse), StatusCodes.Status200OK)]
         [HttpGet]
         public IActionResult ListTenancies([FromQuery] string address = null, [FromQuery] string postcode = null,
+            [FromQuery(Name = "leasehold_only")] bool leaseholdsOnly = false, [FromQuery(Name = "freehold_only")] bool freeholdsOnly = false,
             [FromQuery] int limit = 20, [FromQuery] int cursor = 0)
         {
-            return Ok(_listTenancies.Execute(limit, cursor, address, postcode));
+            return Ok(_listTenancies.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly));
         }
 
         /// <summary>
