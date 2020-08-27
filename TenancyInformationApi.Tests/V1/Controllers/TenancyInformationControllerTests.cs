@@ -68,7 +68,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             {
                 Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(limit, cursor, It.IsAny<string>())).Returns(stubbedResponse);
+            _listTenancies.Setup(x => x.Execute(limit, cursor, It.IsAny<string>(), It.IsAny<string>())).Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies(limit: limit, cursor: cursor) as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
@@ -81,7 +81,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             {
                 Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(20, 0, It.IsAny<string>())).Returns(stubbedResponse);
+            _listTenancies.Setup(x => x.Execute(20, 0, It.IsAny<string>(), It.IsAny<string>())).Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies() as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
@@ -91,8 +91,9 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         public void ListTenanciesWillPassQueryParametersToTheUseCase()
         {
             var addressQuery = _fixture.Create<string>();
-            _classUnderTest.ListTenancies(address: addressQuery);
-            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery));
+            var postcodeQuery = _fixture.Create<string>();
+            _classUnderTest.ListTenancies(address: addressQuery, postcode: postcodeQuery);
+            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery, postcodeQuery));
         }
     }
 }

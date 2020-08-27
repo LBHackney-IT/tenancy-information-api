@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TenancyInformationApi.Tests.V1.Helper;
@@ -10,7 +9,8 @@ namespace TenancyInformationApi.Tests
     public static class E2ETestHelper
     {
         public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context,
-            string tenancyReference = null, string agreementId = null, string tenureTypeId = null, string address = null)
+            string tenancyReference = null, string agreementId = null, string tenureTypeId = null,
+            string address = null, string postcode = null)
         {
             var agreementLookup = AddAgreementTypeToDatabase(context, agreementId);
             var tenureTypeLookup = AddTenureTypeToDatabase(context, tenureTypeId);
@@ -19,7 +19,7 @@ namespace TenancyInformationApi.Tests
             context.UhTenancyAgreements.Add(tenancyAgreement);
             context.SaveChanges();
 
-            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference, address);
+            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference, address, postcode);
             context.UhProperties.Add(property);
             context.SaveChanges();
 

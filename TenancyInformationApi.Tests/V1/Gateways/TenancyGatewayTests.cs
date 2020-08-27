@@ -201,6 +201,30 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             response.First().Should().BeEquivalentTo(ExpectedDomain(tenancyAtAddress));
         }
 
+        [Test]
+        public void ListTenanciesWhenSearchingByPostcodeWillIgnoreCasingAndFormatting()
+        {
+            var postcode = "E3 GT6";
+            var tenancyAtAddress = SaveTenancyPropertyAndLookups(postcode: "e3  gT6", agreementLookupId: "a");
+            var anotherTenancy = SaveTenancyPropertyAndLookups(agreementLookupId: "b");
+
+            var response = CallGatewayWithArgs(postcodeQuery: postcode);
+            response.Count.Should().Be(1);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(tenancyAtAddress));
+        }
+
+        [Test]
+        public void ListTenanciesWhenSearchingByPostcodeWillReturnRecordsWithAnExactlyMatchingPostcode()
+        {
+            var postcode = "W1 YU2";
+            var tenancyAtAddress = SaveTenancyPropertyAndLookups(postcode: postcode, agreementLookupId: "a");
+            var anotherTenancy = SaveTenancyPropertyAndLookups(agreementLookupId: "b");
+
+            var response = CallGatewayWithArgs(postcodeQuery: postcode);
+            response.Count.Should().Be(1);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(tenancyAtAddress));
+        }
+
         private static Tenancy ExpectedDomain((UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) tenancyEntities)
         {
             var expectedDomain = tenancyEntities.uhTenancy.ToDomain(tenancyEntities.agreementTypeLookup, tenancyEntities.property);
@@ -272,9 +296,9 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return property;
         }
 
-        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null)
+        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null)
         {
-            return _classUnderTest.ListTenancies(limit, cursor, addressQuery);
+            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery);
         }
     }
 }
