@@ -17,12 +17,12 @@ namespace TenancyInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public ListTenanciesResponse Execute(int limit, int cursor)
+        public ListTenanciesResponse Execute(int limit, int cursor, string addressQuery)
         {
             limit = limit < 10 ? 10 : limit;
             limit = limit > 100 ? 100 : limit;
 
-            var tenancies = _gateway.ListTenancies(limit, cursor);
+            var tenancies = _gateway.ListTenancies(limit, cursor, addressQuery);
             return new ListTenanciesResponse
             {
                 Tenancies = tenancies.ToResponse(),
