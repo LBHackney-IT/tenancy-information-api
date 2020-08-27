@@ -18,7 +18,7 @@ namespace TenancyInformationApi.Tests.V1.Helper
                 .Create();
             fp.UhTenureTypeId = tenureTypeLookupId ?? fp.UhTenureTypeId;
             fp.TenancyAgreementReference = tenancyReference ?? fp.TenancyAgreementReference;
-            fp.UhAgreementTypeId = Convert.ToChar(agreementTypeRef);
+            fp.UhAgreementTypeId = agreementTypeRef.First();
             return fp;
         }
 
@@ -49,7 +49,7 @@ namespace TenancyInformationApi.Tests.V1.Helper
             var fixture = new Fixture();
             return fixture.Build<UhAgreementType>()
                 .With(a => a.LookupType, "ZAG")
-                .With(a => a.UhAgreementTypeId, fixture.Create<char>().ToString)
+                .With(a => a.UhAgreementTypeId, fixture.Create<string>().First().ToString)
                 .Create();
         }
     }

@@ -9,12 +9,11 @@ namespace TenancyInformationApi.Tests
 {
     public static class E2ETestHelper
     {
-        public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context, string tenancyReference = null)
+        public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context,
+            string tenancyReference = null, string agreementId = null, string tenureTypeId = null)
         {
-            var agreementLookup = AddAgreementTypeToDatabase(context);
-            var tenureTypeLookup = TestHelper.CreateTenureTypeLookup();
-            context.UhTenure.Add(tenureTypeLookup);
-            context.SaveChanges();
+            var agreementLookup = AddAgreementTypeToDatabase(context, agreementId);
+            var tenureTypeLookup = AddTenureTypeToDatabase(context, tenureTypeId);
 
             var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
             context.UhTenancyAgreements.Add(tenancyAgreement);
@@ -56,19 +55,22 @@ namespace TenancyInformationApi.Tests
             };
         }
 
-        private static UhAgreementType AddAgreementTypeToDatabase(UhContext context)
+        private static UhAgreementType AddAgreementTypeToDatabase(UhContext context, string agreementId = null)
         {
             var agreementLookup = TestHelper.CreateAgreementTypeLookup();
+            agreementLookup.UhAgreementTypeId = agreementId ?? agreementLookup.UhAgreementTypeId;
             context.UhTenancyAgreementsType.Add(agreementLookup);
-            try
-            {
-                context.SaveChanges();
-                return agreementLookup;
-            }
-            catch (InvalidOperationException)
-            {
-                return AddAgreementTypeToDatabase(context);
-            }
+            context.SaveChanges();
+            return agreementLookup;
+        }
+
+        private static UhTenureType AddTenureTypeToDatabase(UhContext context, string tenureTypeId = null)
+        {
+            var tenureLookup = TestHelper.CreateTenureTypeLookup();
+            tenureLookup.UhTenureTypeId = tenureTypeId ?? tenureLookup.UhTenureTypeId;
+            context.UhTenure.Add(tenureLookup);
+            context.SaveChanges();
+            return tenureLookup;
         }
     }
 }

@@ -29,9 +29,9 @@ namespace TenancyInformationApi.V1.Factories
 
         public static Tenancy ToDomain(this UhTenancyAgreement uhTenancyAgreement, UhAgreementType agreementType, UhTenureType tenureType, UHProperty property = null)
         {
-            var tenure = tenureType?.UhTenureTypeId == null && tenureType?.Description == null
+            var tenure = tenureType == null
                 ? null
-                : $"{tenureType?.UhTenureTypeId}: {tenureType?.Description}";
+                : $"{tenureType.UhTenureTypeId.Trim()}: {tenureType.Description.Trim()}";
             var agreement = agreementType?.UhAgreementTypeId == null
                 ? null
                 : $"{agreementType.UhAgreementTypeId.Trim()}: {agreementType.Description?.Trim()}";
