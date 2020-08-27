@@ -17,6 +17,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         private TenancyInformationController _classUnderTest;
         private Mock<IGetTenancyByIdUseCase> _getByIdMock;
         private Mock<IListTenancies> _listTenancies;
+        private Fixture _fixture = new Fixture();
 
         [SetUp]
         public void SetUp()
@@ -61,15 +62,14 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         [Test]
         public void ListTenanciesReturnsRecordsObtainedFromTheUseCase()
         {
-            var fixture = new Fixture();
-            var limit = fixture.Create<int>();
-            var cursor = fixture.Create<int>();
+            var limit = _fixture.Create<int>();
+            var cursor = _fixture.Create<int>();
             var stubbedResponse = new ListTenanciesResponse
             {
-                Tenancies = fixture.CreateMany<TenancyInformationResponse>().ToList()
+                Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(limit, cursor)).Returns(stubbedResponse);
-            var response = _classUnderTest.ListTenancies(limit, cursor) as ObjectResult;
+            _listTenancies.Setup(x => x.Execute(limit, cursor, It.IsAny<string>())).Returns(stubbedResponse);
+            var response = _classUnderTest.ListTenancies(limit: limit, cursor: cursor) as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
         }
@@ -77,15 +77,22 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         [Test]
         public void ListTenanciesWillAssignDefaultValuesToLimitAndCursor()
         {
-            var fixture = new Fixture();
             var stubbedResponse = new ListTenanciesResponse
             {
-                Tenancies = fixture.CreateMany<TenancyInformationResponse>().ToList()
+                Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(20, 0)).Returns(stubbedResponse);
+            _listTenancies.Setup(x => x.Execute(20, 0, It.IsAny<string>())).Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies() as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
+        }
+
+        [Test]
+        public void ListTenanciesWillPassQueryParametersToTheUseCase()
+        {
+            var addressQuery = _fixture.Create<string>();
+            _classUnderTest.ListTenancies(address: addressQuery);
+            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery));
         }
     }
 }

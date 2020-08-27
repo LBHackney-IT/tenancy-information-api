@@ -10,7 +10,7 @@ namespace TenancyInformationApi.Tests
     public static class E2ETestHelper
     {
         public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context,
-            string tenancyReference = null, string agreementId = null, string tenureTypeId = null)
+            string tenancyReference = null, string agreementId = null, string tenureTypeId = null, string address = null)
         {
             var agreementLookup = AddAgreementTypeToDatabase(context, agreementId);
             var tenureTypeLookup = AddTenureTypeToDatabase(context, tenureTypeId);
@@ -19,7 +19,7 @@ namespace TenancyInformationApi.Tests
             context.UhTenancyAgreements.Add(tenancyAgreement);
             context.SaveChanges();
 
-            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference);
+            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference, address);
             context.UhProperties.Add(property);
             context.SaveChanges();
 
