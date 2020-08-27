@@ -31,8 +31,10 @@ namespace TenancyInformationApi.V1.Gateways
             return tenancyAgreement.ToDomain(agreementLookup);
         }
 
-        public List<Tenancy> ListTenancies(int limit, int cursor)
+        public List<Tenancy> ListTenancies(int limit, int cursor, string addressQuery, string postcodeQuery, bool leaseholdsOnly, bool freeholdsOnly)
         {
+            var addressSearchPattern = GetSearchPattern(addressQuery);
+            var postcodeSearchPattern = GetSearchPattern(postcodeQuery);
             var tenancies = (
                 from agreement in _uhContext.UhTenancyAgreements
                 join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
@@ -40,7 +42,14 @@ namespace TenancyInformationApi.V1.Gateways
                     equals agreementType.UhAgreementTypeId.Trim()
                 join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
                 where agreementType.LookupType == "ZAG"
+                where !freeholdsOnly || tenureType.UhTenureTypeId == "FRE" || tenureType.UhTenureTypeId == "FRS"
+                where !leaseholdsOnly || tenureType.UhTenureTypeId == "LEA"
                 where Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "")) > cursor
+                where string.IsNullOrEmpty(addressQuery)
+                      || EF.Functions.ILike(property.AddressLine1.Replace(" ", ""), addressSearchPattern)
+                      || EF.Functions.ILike(property.Postcode.Replace(" ", ""), addressSearchPattern)
+                where string.IsNullOrEmpty(postcodeQuery)
+                      || EF.Functions.ILike(property.Postcode.Replace(" ", ""), postcodeSearchPattern)
                 orderby Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", ""))
                 select new
                 {
@@ -56,6 +65,11 @@ namespace TenancyInformationApi.V1.Gateways
                 domain.Residents = _uhContext.UhResidents.Where(r => r.HouseReference == domain.HouseholdReference).ToDomain();
                 return domain;
             }).ToList();
+        }
+
+        private static string GetSearchPattern(string str)
+        {
+            return $"%{str?.Replace(" ", "")}%";
         }
     }
 }

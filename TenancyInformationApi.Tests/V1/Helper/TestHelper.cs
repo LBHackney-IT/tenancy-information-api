@@ -1,8 +1,5 @@
 using AutoFixture;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TenancyInformationApi.V1.Infrastructure;
 
 namespace TenancyInformationApi.Tests.V1.Helper
@@ -22,12 +19,15 @@ namespace TenancyInformationApi.Tests.V1.Helper
             return fp;
         }
 
-        public static UHProperty CreateDatabaseProperty(string propertyReference = null)
+        public static UHProperty CreateDatabaseProperty(string propertyReference = null, string address = null, string postcode = null)
         {
             var fixture = new Fixture();
-            return fixture.Build<UHProperty>()
+            var property = fixture.Build<UHProperty>()
                 .With(p => p.PropertyReference, propertyReference)
                 .Create();
+            if (address != null) property.AddressLine1 = address;
+            if (postcode != null) property.Postcode = postcode;
+            return property;
         }
 
         public static UHResident CreateDatabaseResident(string houseReference = null)
