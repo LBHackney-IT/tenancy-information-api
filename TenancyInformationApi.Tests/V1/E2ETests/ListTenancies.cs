@@ -89,6 +89,7 @@ namespace TenancyInformationApi.Tests.V1.E2ETests
 
         private static string GetLetterFromAlphabetPosition(int position)
         {
+            // Being used to generate ordered string based ID's which are all unique. To help test pagination and prevent duplicate key errors in test setup.
             return Convert.ToChar(Enumerable.Range('a', 27).ElementAt(position)).ToString();
         }
 
