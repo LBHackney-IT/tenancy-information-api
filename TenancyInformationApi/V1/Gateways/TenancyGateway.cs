@@ -31,9 +31,10 @@ namespace TenancyInformationApi.V1.Gateways
             return tenancyAgreement.ToDomain(agreementLookup);
         }
 
-        public List<Tenancy> ListTenancies(int limit, int cursor, string addressQuery)
+        public List<Tenancy> ListTenancies(int limit, int cursor, string addressQuery, string postcodeQuery)
         {
             var addressSearchPattern = GetSearchPattern(addressQuery);
+            var postcodeSearchPattern = GetSearchPattern(postcodeQuery);
             var tenancies = (
                 from agreement in _uhContext.UhTenancyAgreements
                 join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
@@ -45,6 +46,8 @@ namespace TenancyInformationApi.V1.Gateways
                 where string.IsNullOrEmpty(addressQuery)
                       || EF.Functions.ILike(property.AddressLine1.Replace(" ", ""), addressSearchPattern)
                       || EF.Functions.ILike(property.Postcode.Replace(" ", ""), addressSearchPattern)
+                where string.IsNullOrEmpty(postcodeQuery)
+                      || EF.Functions.ILike(property.Postcode.Replace(" ", ""), postcodeSearchPattern)
                 orderby Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", ""))
                 select new
                 {

@@ -126,6 +126,7 @@ namespace TenancyInformationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetTenancyByIdUseCase, GetTenancyByIdUseCase>();
+            services.AddScoped<IValidatePostcode, ValidatePostcode>();
             services.AddScoped<IListTenancies, ListTenancies>();
         }
 
