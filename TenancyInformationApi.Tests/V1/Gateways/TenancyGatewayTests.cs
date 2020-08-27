@@ -193,7 +193,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         public void ListTenanciesWhenSearchingAddressesWillReturnRecordsWithAMatchingPostcode()
         {
             var addressQuery = "e3 gt6";
-            var tenancyAtAddress = SaveTenancyPropertyAndLookups(postcode: "E3 Gt6" ,agreementLookupId: "a");
+            var tenancyAtAddress = SaveTenancyPropertyAndLookups(postcode: "E3 Gt6", agreementLookupId: "a");
             var anotherTenancy = SaveTenancyPropertyAndLookups(agreementLookupId: "b");
 
             var response = CallGatewayWithArgs(addressQuery: addressQuery);
@@ -225,6 +225,30 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             response.First().Should().BeEquivalentTo(ExpectedDomain(tenancyAtAddress));
         }
 
+        [Test]
+        public void ListTenanciesWhenAskingForOnlyLeaseholdsOnlyLeaseholdsAreReturned()
+        {
+            var leaseholdTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "LEA", agreementLookupId: "a");
+            var anotherTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "PVG", agreementLookupId: "b");
+
+            var response = CallGatewayWithArgs(leaseholdsOnly: true);
+            response.Count.Should().Be(1);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(leaseholdTenancy));
+        }
+
+        [Test]
+        public void ListTenanciesWhenAskingForOnlyFreeholdsOnlyFreeholdsAreReturned()
+        {
+            var leaseholdTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "FRE", agreementLookupId: "a");
+            var secondLeaseholdTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "FRS", agreementLookupId: "b");
+            var anotherTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "PVG", agreementLookupId: "c");
+
+            var response = CallGatewayWithArgs(freeholdsOnly: true);
+            response.Count.Should().Be(2);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(leaseholdTenancy));
+            response.Last().Should().BeEquivalentTo(ExpectedDomain(secondLeaseholdTenancy));
+        }
+
         private static Tenancy ExpectedDomain((UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) tenancyEntities)
         {
             var expectedDomain = tenancyEntities.uhTenancy.ToDomain(tenancyEntities.agreementTypeLookup, tenancyEntities.property);
@@ -244,12 +268,12 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         }
 
         private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup,
-            UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null, string agreementLookupId = null,
+            UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null, string agreementLookupId = null, string tenureTypeId = null,
                 string address = null, string postcode = null)
         {
             var faker = new Faker();
             tagRef ??= $"{faker.Random.Int(0, 99999)}/{faker.Random.Int(0, 99)}";
-            var tenureTypeLookup = AddTenureTypeLookupToDatabase();
+            var tenureTypeLookup = AddTenureTypeLookupToDatabase(tenureTypeId);
             var agreementTypeLookup = AddAgreementTypeLookupToDatabase(agreementLookupId);
             var uhTenancy = AddTenancyAgreementToDatabase(tagRef, agreementTypeLookup, tenureTypeLookup);
             var property = AddPropertyToDatabase(uhTenancy.PropertyReference, address, postcode);
@@ -279,9 +303,10 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return agreementTypeLookup;
         }
 
-        private UhTenureType AddTenureTypeLookupToDatabase()
+        private UhTenureType AddTenureTypeLookupToDatabase(string tenureTypeId)
         {
             var tenureTypeLookup = _fixture.Create<UhTenureType>();
+            if (tenureTypeId != null) tenureTypeLookup.UhTenureTypeId = tenureTypeId;
             UhContext.UhTenure.Add(tenureTypeLookup);
             UhContext.SaveChanges();
             return tenureTypeLookup;
@@ -296,9 +321,9 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return property;
         }
 
-        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null)
+        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false)
         {
-            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery);
+            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly);
         }
     }
 }

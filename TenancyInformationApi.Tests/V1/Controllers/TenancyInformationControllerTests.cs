@@ -68,7 +68,10 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             {
                 Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(limit, cursor, It.IsAny<string>(), It.IsAny<string>())).Returns(stubbedResponse);
+            _listTenancies
+                .Setup(x => x.Execute(limit, cursor, It.IsAny<string>(),
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies(limit: limit, cursor: cursor) as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
@@ -81,7 +84,10 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             {
                 Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
-            _listTenancies.Setup(x => x.Execute(20, 0, It.IsAny<string>(), It.IsAny<string>())).Returns(stubbedResponse);
+            _listTenancies
+                .Setup(x => x.Execute(20, 0, It.IsAny<string>(),
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies() as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
@@ -92,8 +98,10 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         {
             var addressQuery = _fixture.Create<string>();
             var postcodeQuery = _fixture.Create<string>();
-            _classUnderTest.ListTenancies(address: addressQuery, postcode: postcodeQuery);
-            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery, postcodeQuery));
+            var freeholdersQuery = _fixture.Create<bool>();
+            var leaseholdersQuery = _fixture.Create<bool>();
+            _classUnderTest.ListTenancies(address: addressQuery, postcode: postcodeQuery, leaseholdsOnly: leaseholdersQuery, freeholdsOnly: freeholdersQuery);
+            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdersQuery, freeholdersQuery));
         }
     }
 }

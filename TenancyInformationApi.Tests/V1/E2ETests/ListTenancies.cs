@@ -123,6 +123,42 @@ namespace TenancyInformationApi.Tests.V1.E2ETests
             returnedTenancies.Tenancies.Should().BeEquivalentTo(expectedResponses.GetRange(0, 2));
         }
 
+        [Test]
+        public async Task WithFreeholdersOnlyOptionReturnOnlyFreeholders()
+        {
+            var expectedResponses = new List<TenancyInformationResponse>
+            {
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "12345/2", "a", "FRE"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "54326/9", "b", "FRS"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "453627/2", "c", "COM"),
+            };
+
+            var response = await CallApiListEndpointWithQueryString("?freehold_only=true").ConfigureAwait(true);
+            response.StatusCode.Should().Be(200);
+
+            var returnedTenancies = await DeserializeResponse(response).ConfigureAwait(true);
+            returnedTenancies.Tenancies.Count.Should().Be(2);
+            returnedTenancies.Tenancies.Should().BeEquivalentTo(expectedResponses.GetRange(0, 2));
+        }
+
+        [Test]
+        public async Task WithLeaseholdersOnlyOptionReturnOnlyLeaseholders()
+        {
+            var expectedResponses = new List<TenancyInformationResponse>
+            {
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "12345/2", "a", "LEA"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "54326/9", "b", "FRS"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "453627/2", "c", "COM"),
+            };
+
+            var response = await CallApiListEndpointWithQueryString("?leasehold_only=true").ConfigureAwait(true);
+            response.StatusCode.Should().Be(200);
+
+            var returnedTenancies = await DeserializeResponse(response).ConfigureAwait(true);
+            returnedTenancies.Tenancies.Count.Should().Be(1);
+            returnedTenancies.Tenancies.First().Should().BeEquivalentTo(expectedResponses.First());
+        }
+
         private static string GetLetterFromAlphabetPosition(int position)
         {
             // Being used to generate ordered string based ID's which are all unique. To help test pagination and prevent duplicate key errors in test setup.

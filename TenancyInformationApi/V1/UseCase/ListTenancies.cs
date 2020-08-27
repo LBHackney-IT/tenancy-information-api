@@ -19,13 +19,14 @@ namespace TenancyInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public ListTenanciesResponse Execute(int limit, int cursor, string addressQuery, string postcodeQuery)
+        public ListTenanciesResponse Execute(int limit, int cursor, string addressQuery, string postcodeQuery,
+            bool leaseholdsOnly, bool freeholdsOnly)
         {
             limit = limit < 10 ? 10 : limit;
             limit = limit > 100 ? 100 : limit;
-            if (!_validatePostcode.Execute(postcodeQuery)) throw new InvalidQueryParameterException("The Postcode given does not have a valid format");
+            CheckPostcodeValid(postcodeQuery);
 
-            var tenancies = _gateway.ListTenancies(limit, cursor, addressQuery, postcodeQuery);
+            var tenancies = _gateway.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly);
             return new ListTenanciesResponse
             {
                 Tenancies = tenancies.ToResponse(),
