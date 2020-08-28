@@ -4,6 +4,7 @@ using TenancyInformationApi.V1.Boundary.Response;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TenancyInformationApi.V1.Boundary;
 using TenancyInformationApi.V1.Domain;
 using TenancyInformationApi.V1.UseCase;
 
@@ -31,13 +32,12 @@ namespace TenancyInformationApi.V1.Controllers
         /// <response code="400">Bad Request. One of the query parameters provided was invalid.</response>
         [ProducesResponseType(typeof(ListTenanciesResponse), StatusCodes.Status200OK)]
         [HttpGet]
-        public IActionResult ListTenancies([FromQuery] string address = null, [FromQuery] string postcode = null,
-            [FromQuery(Name = "leasehold_only")] bool leaseholdsOnly = false, [FromQuery(Name = "freehold_only")] bool freeholdsOnly = false,
-            [FromQuery] int limit = 20, [FromQuery] int cursor = 0)
+        public IActionResult ListTenancies([FromQuery] QueryParameters queryParameters)
         {
             try
             {
-                return Ok(_listTenancies.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly));
+                return Ok(_listTenancies.Execute(queryParameters.Limit, queryParameters.Cursor, queryParameters.Address,
+                    queryParameters.Postcode, queryParameters.LeaseholdsOnly, queryParameters.FreeholdsOnly));
 
             }
             catch (InvalidQueryParameterException exception)
