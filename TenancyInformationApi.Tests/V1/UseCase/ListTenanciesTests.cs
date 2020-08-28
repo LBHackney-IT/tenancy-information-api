@@ -98,6 +98,24 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         }
 
         [Test]
+        public void ReturnsTheNextCursorWithZRemovedIfPresent()
+        {
+            var faker = new Faker();
+            var stubbedTenancies = _fixture.CreateMany<Tenancy>(10).Select((t, index) =>
+            {
+                var tagRef = $"{index}{faker.Random.Int(0, 9999):0000}/Z00{faker.Random.Int(1, 9)}";
+                t.TenancyAgreementReference = tagRef;
+                return t;
+            }).ToList();
+            SetupMockGatewayToExpectParameters(limit: 10, stubbedTenancies: stubbedTenancies);
+
+            var tagRefForNextCursor = stubbedTenancies.Last().TenancyAgreementReference;
+            var expectedNextCursor = $"{tagRefForNextCursor.Substring(0, 5)}{tagRefForNextCursor.Substring(7, 3)}";
+
+            CallUseCaseWithArgs(10, 0).NextCursor.Should().Be(expectedNextCursor);
+        }
+
+        [Test]
         public void WhenAtTheEndOfTheResidentListReturnsNullForTheNextCursor()
         {
             var stubbedTenancies = _fixture.CreateMany<Tenancy>(7);
@@ -148,6 +166,7 @@ namespace TenancyInformationApi.Tests.V1.UseCase
             _mockGateway.Verify();
         }
 
+        [Test]
         public void ExecuteCallsTheGatewayWithFreeholdsFlag()
         {
             var freeholdsOnly = _fixture.Create<bool>();

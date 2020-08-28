@@ -42,18 +42,19 @@ namespace TenancyInformationApi.V1.Gateways
                 join agreementType in _uhContext.UhTenancyAgreementsType on agreement.UhAgreementTypeId.ToString()
                     equals agreementType.UhAgreementTypeId.Trim()
                 join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
+                let tagRefFormattedForPagination = Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "").Replace("Z", ""))
                 where !invalidTagRefList.Contains(agreement.TenancyAgreementReference)
                 where !EF.Functions.ILike(agreement.TenancyAgreementReference, "DUMMY/%")
                 where agreementType.LookupType == "ZAG"
                 where !freeholdsOnly || tenureType.UhTenureTypeId == "FRE" || tenureType.UhTenureTypeId == "FRS"
                 where !leaseholdsOnly || tenureType.UhTenureTypeId == "LEA"
-                where Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "")) > cursor
+                where tagRefFormattedForPagination > cursor
                 where string.IsNullOrEmpty(addressQuery)
                       || EF.Functions.ILike(property.AddressLine1.Replace(" ", ""), addressSearchPattern)
                       || EF.Functions.ILike(property.Postcode.Replace(" ", ""), addressSearchPattern)
                 where string.IsNullOrEmpty(postcodeQuery)
                       || EF.Functions.ILike(property.Postcode.Replace(" ", ""), postcodeSearchPattern)
-                orderby Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", ""))
+                orderby tagRefFormattedForPagination
                 select new
                 {
                     Agreement = agreement,
