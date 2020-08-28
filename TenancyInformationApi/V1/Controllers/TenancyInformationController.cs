@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using TenancyInformationApi.V1.Boundary.Response;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TenancyInformationApi.V1.Domain;
 using TenancyInformationApi.V1.UseCase;
 
 namespace TenancyInformationApi.V1.Controllers
@@ -26,13 +28,22 @@ namespace TenancyInformationApi.V1.Controllers
         /// Lists and queries tenancies.
         /// </summary>
         /// <response code="200">Success!</response>
+        /// <response code="400">Bad Request. One of the query parameters provided was invalid.</response>
         [ProducesResponseType(typeof(ListTenanciesResponse), StatusCodes.Status200OK)]
         [HttpGet]
         public IActionResult ListTenancies([FromQuery] string address = null, [FromQuery] string postcode = null,
             [FromQuery(Name = "leasehold_only")] bool leaseholdsOnly = false, [FromQuery(Name = "freehold_only")] bool freeholdsOnly = false,
             [FromQuery] int limit = 20, [FromQuery] int cursor = 0)
         {
-            return Ok(_listTenancies.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly));
+            try
+            {
+                return Ok(_listTenancies.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly));
+
+            }
+            catch (InvalidQueryParameterException exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         /// <summary>

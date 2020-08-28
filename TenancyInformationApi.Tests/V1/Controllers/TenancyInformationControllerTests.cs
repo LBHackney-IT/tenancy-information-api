@@ -7,6 +7,7 @@ using NUnit.Framework;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Moq;
 using TenancyInformationApi.V1.Boundary.Response;
+using TenancyInformationApi.V1.Domain;
 using TenancyInformationApi.V1.UseCase;
 
 namespace TenancyInformationApi.Tests.V1.Controllers
@@ -102,6 +103,18 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             var leaseholdersQuery = _fixture.Create<bool>();
             _classUnderTest.ListTenancies(address: addressQuery, postcode: postcodeQuery, leaseholdsOnly: leaseholdersQuery, freeholdsOnly: freeholdersQuery);
             _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdersQuery, freeholdersQuery));
+        }
+
+        [Test]
+        public void ListTenanciesIfPostcodeIsValidWillReturn400ResponseCode()
+        {
+            _listTenancies
+                .Setup(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Throws(new InvalidQueryParameterException("The parameters are all wrong"));
+            var response = _classUnderTest.ListTenancies() as ObjectResult;
+            response.StatusCode.Should().Be(400);
+            response.Value.Should().BeEquivalentTo("The parameters are all wrong");
         }
     }
 }
