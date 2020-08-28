@@ -117,5 +117,25 @@ namespace TenancyInformationApi.Tests.V1.Factories
                 DateOfBirth = new DateTime(1980, 12, 28)
             });
         }
+
+        [Test]
+        public void ChangeDatesToNullWhereAppropriate()
+        {
+            var fixture = new Fixture();
+            var nullDate = new DateTime(1900, 1, 1);
+            var dbResident = fixture.Build<UHResident>()
+                .With(r => r.DateOfBirth, nullDate)
+                .Create();
+            var dbTenancy = fixture.Build<UhTenancyAgreement>()
+                .With(t => t.CommencementOfTenancy, nullDate)
+                .With(t => t.EndOfTenancy, nullDate)
+                .Create();
+            var agreementTypeDescription = _fixture.Create<UhAgreementType>();
+            var property = _fixture.Create<UHProperty>();
+
+            dbResident.ToDomain().DateOfBirth.Should().BeNull();
+            dbTenancy.ToDomain(agreementTypeDescription, property).CommencementOfTenancyDate.Should().BeNull();
+            dbTenancy.ToDomain(agreementTypeDescription, property).EndOfTenancyDate.Should().BeNull();
+        }
     }
 }

@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using Bogus;
 using TenancyInformationApi.V1.Gateways;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using NUnit.Framework;
 using TenancyInformationApi.Tests.V1.Helper;
 using TenancyInformationApi.V1.Domain;
@@ -239,14 +237,50 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         [Test]
         public void ListTenanciesWhenAskingForOnlyFreeholdsOnlyFreeholdsAreReturned()
         {
-            var leaseholdTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "FRE", agreementLookupId: "a");
-            var secondLeaseholdTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "FRS", agreementLookupId: "b");
+            var freeholdTenancy = SaveTenancyPropertyAndLookups(tagRef: "12345/2", tenureTypeId: "FRE", agreementLookupId: "a");
+            var secondFreeholdTenancy = SaveTenancyPropertyAndLookups(tagRef: "52345/2", tenureTypeId: "FRS", agreementLookupId: "b");
             var anotherTenancy = SaveTenancyPropertyAndLookups(tenureTypeId: "PVG", agreementLookupId: "c");
 
             var response = CallGatewayWithArgs(freeholdsOnly: true);
             response.Count.Should().Be(2);
-            response.First().Should().BeEquivalentTo(ExpectedDomain(leaseholdTenancy));
-            response.Last().Should().BeEquivalentTo(ExpectedDomain(secondLeaseholdTenancy));
+            response.First().Should().BeEquivalentTo(ExpectedDomain(freeholdTenancy));
+            response.Last().Should().BeEquivalentTo(ExpectedDomain(secondFreeholdTenancy));
+        }
+
+        [Test]
+        public void ListTenanciesWillIgnoreNotRealTagRefs()
+        {
+            var fakeTagRefs = new List<string>
+            {
+                "SUSP/LEGLEA",
+                "SUSP/LEGRNT",
+                "SSSSSS",
+                "YYYYYY",
+                "ZZZZZZ",
+                "DUMMY/Z001",
+                "DUMMY/Z536"
+            };
+            fakeTagRefs.ForEach(t => SaveTenancyPropertyAndLookups(tagRef: t, agreementLookupId: t.Last().ToString()));
+            var legitimateTenancy = SaveTenancyPropertyAndLookups("12367/2", "z");
+
+            var response = CallGatewayWithArgs();
+            response.Count.Should().Be(1);
+            response.First().Should().BeEquivalentTo(ExpectedDomain(legitimateTenancy));
+        }
+
+        [Test]
+        public void ListTenanciesWillRemoveTheZsFromTagRefsFromThePurposesOfPagination()
+        {
+            var house2Tenancy2 = SaveTenancyPropertyAndLookups(tagRef: "45627/Z002", agreementLookupId: "a");
+            var house2Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "45627/Z001", agreementLookupId: "b");
+            var house1Tenancy1 = SaveTenancyPropertyAndLookups(tagRef: "12345/Z001", agreementLookupId: "c");
+
+            var response = CallGatewayWithArgs(limit: 2);
+            response.Count.Should().Be(2);
+            response.First()
+                .Should().BeEquivalentTo(ExpectedDomain(house1Tenancy1));
+            response.Last()
+                .Should().BeEquivalentTo(ExpectedDomain(house2Tenancy1));
         }
 
         private static Tenancy ExpectedDomain((UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup, UHProperty property) tenancyEntities)

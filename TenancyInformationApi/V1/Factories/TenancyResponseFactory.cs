@@ -18,8 +18,8 @@ namespace TenancyInformationApi.V1.Factories
                 CommencementOfTenancyDate = tenancy.CommencementOfTenancyDate,
                 EndOfTenancyDate = tenancy.EndOfTenancyDate,
                 CurrentBalance = tenancy.CurrentBalance?.ToString(CultureInfo.CurrentCulture),
-                Present = tenancy.Present.ToString(CultureInfo.CurrentCulture),
-                Terminated = tenancy.Terminated.ToString(CultureInfo.CurrentCulture),
+                Present = tenancy.Present,
+                Terminated = tenancy.Terminated,
                 PaymentReference = tenancy.PaymentReference,
                 HouseholdReference = tenancy.HouseholdReference,
                 PropertyReference = tenancy.PropertyReference,
@@ -44,7 +44,7 @@ namespace TenancyInformationApi.V1.Factories
             {
                 FirstName = r.FirstName,
                 LastName = r.LastName,
-                DateOfBirth = r.DateOfBirth.ToString("yyyy-MM-dd")
+                DateOfBirth = r.DateOfBirth?.ToString("yyyy-MM-dd")
             }).ToList();
         }
     }

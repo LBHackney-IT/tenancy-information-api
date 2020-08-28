@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TenancyInformationApi.V1.Domain;
@@ -19,11 +20,14 @@ namespace TenancyInformationApi.V1.Factories
 
         public static Resident ToDomain(this UHResident resident)
         {
+            var residentDateOfBirth = resident.DateOfBirth == new DateTime(1900, 01, 01)
+                ? (DateTime?) null
+                : resident.DateOfBirth;
             return new Resident
             {
                 FirstName = resident.FirstName,
                 LastName = resident.LastName,
-                DateOfBirth = resident.DateOfBirth
+                DateOfBirth = residentDateOfBirth
             };
         }
 
@@ -39,8 +43,8 @@ namespace TenancyInformationApi.V1.Factories
             return new Tenancy
             {
                 TenancyAgreementReference = uhTenancyAgreement?.TenancyAgreementReference?.Trim(),
-                CommencementOfTenancyDate = uhTenancyAgreement.CommencementOfTenancy?.ToString("yyyy-MM-dd"),
-                EndOfTenancyDate = uhTenancyAgreement.EndOfTenancy?.ToString("yyyy-MM-dd"),
+                CommencementOfTenancyDate = CheckDateOfBirthForNullValue(uhTenancyAgreement.CommencementOfTenancy),
+                EndOfTenancyDate = CheckDateOfBirthForNullValue(uhTenancyAgreement.EndOfTenancy),
                 CurrentBalance = uhTenancyAgreement.CurrentRentBalance,
                 Present = uhTenancyAgreement.IsPresent,
                 Terminated = uhTenancyAgreement.IsTerminated,
@@ -54,6 +58,11 @@ namespace TenancyInformationApi.V1.Factories
                 Address = property?.AddressLine1.Trim(),
                 Postcode = property?.Postcode.Trim()
             };
+        }
+
+        private static string CheckDateOfBirthForNullValue(DateTime? date)
+        {
+            return date == new DateTime(1900, 01, 01) ? null : date?.ToString("yyyy-MM-dd");
         }
     }
 }

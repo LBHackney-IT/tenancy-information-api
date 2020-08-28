@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using TenancyInformationApi.V1.UseCase.Interfaces;
 using Moq;
+using TenancyInformationApi.V1.Boundary;
 using TenancyInformationApi.V1.Boundary.Response;
+using TenancyInformationApi.V1.Domain;
 using TenancyInformationApi.V1.UseCase;
 
 namespace TenancyInformationApi.Tests.V1.Controllers
@@ -62,17 +64,20 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         [Test]
         public void ListTenanciesReturnsRecordsObtainedFromTheUseCase()
         {
-            var limit = _fixture.Create<int>();
-            var cursor = _fixture.Create<int>();
+            var queryParameters = new QueryParameters
+            {
+                Limit = _fixture.Create<int>(),
+                Cursor = _fixture.Create<int>()
+            };
             var stubbedResponse = new ListTenanciesResponse
             {
                 Tenancies = _fixture.CreateMany<TenancyInformationResponse>().ToList()
             };
             _listTenancies
-                .Setup(x => x.Execute(limit, cursor, It.IsAny<string>(),
+                .Setup(x => x.Execute(queryParameters.Limit, queryParameters.Cursor, It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Returns(stubbedResponse);
-            var response = _classUnderTest.ListTenancies(limit: limit, cursor: cursor) as ObjectResult;
+            var response = _classUnderTest.ListTenancies(queryParameters) as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
         }
@@ -88,7 +93,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
                 .Setup(x => x.Execute(20, 0, It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Returns(stubbedResponse);
-            var response = _classUnderTest.ListTenancies() as ObjectResult;
+            var response = _classUnderTest.ListTenancies(new QueryParameters()) as ObjectResult;
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(stubbedResponse);
         }
@@ -96,12 +101,28 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         [Test]
         public void ListTenanciesWillPassQueryParametersToTheUseCase()
         {
-            var addressQuery = _fixture.Create<string>();
-            var postcodeQuery = _fixture.Create<string>();
-            var freeholdersQuery = _fixture.Create<bool>();
-            var leaseholdersQuery = _fixture.Create<bool>();
-            _classUnderTest.ListTenancies(address: addressQuery, postcode: postcodeQuery, leaseholdsOnly: leaseholdersQuery, freeholdsOnly: freeholdersQuery);
-            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdersQuery, freeholdersQuery));
+            var queryParameters = new QueryParameters
+            {
+                Address = _fixture.Create<string>(),
+                Postcode = _fixture.Create<string>(),
+                FreeholdsOnly = _fixture.Create<bool>(),
+                LeaseholdsOnly = _fixture.Create<bool>()
+            };
+            _classUnderTest.ListTenancies(queryParameters);
+            _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(),
+                queryParameters.Address, queryParameters.Postcode, queryParameters.LeaseholdsOnly, queryParameters.FreeholdsOnly));
+        }
+
+        [Test]
+        public void ListTenanciesIfPostcodeIsValidWillReturn400ResponseCode()
+        {
+            _listTenancies
+                .Setup(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Throws(new InvalidQueryParameterException("The parameters are all wrong"));
+            var response = _classUnderTest.ListTenancies(new QueryParameters()) as ObjectResult;
+            response.StatusCode.Should().Be(400);
+            response.Value.Should().BeEquivalentTo("The parameters are all wrong");
         }
     }
 }

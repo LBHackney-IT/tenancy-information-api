@@ -36,7 +36,12 @@ namespace TenancyInformationApi.V1.UseCase
 
         private static string GetNextCursor(List<Tenancy> tenancies)
         {
-            return tenancies.Max(t => Convert.ToInt32(t.TenancyAgreementReference.Replace("/", ""))).ToString();
+            return tenancies.Max(FormatTagRefForPagination).ToString();
+        }
+
+        private static int FormatTagRefForPagination(Tenancy t)
+        {
+            return Convert.ToInt32(t.TenancyAgreementReference.Replace("/", "").Replace("Z", ""));
         }
 
         private void CheckPostcodeValid(string postcode)

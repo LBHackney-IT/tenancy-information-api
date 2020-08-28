@@ -10,8 +10,8 @@ namespace TenancyInformationApi.V1.Boundary.Response
         public string CommencementOfTenancyDate { get; set; }
         public string EndOfTenancyDate { get; set; }
         public string CurrentBalance { get; set; }
-        public string Present { get; set; }
-        public string Terminated { get; set; }
+        public bool Present { get; set; }
+        public bool Terminated { get; set; }
         public string PaymentReference { get; set; }
         public string HouseholdReference { get; set; }
         public string PropertyReference { get; set; }
