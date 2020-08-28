@@ -44,7 +44,7 @@ namespace TenancyInformationApi.V1.Factories
             {
                 FirstName = r.FirstName,
                 LastName = r.LastName,
-                DateOfBirth = r.DateOfBirth.ToString("yyyy-MM-dd")
+                DateOfBirth = r.DateOfBirth?.ToString("yyyy-MM-dd")
             }).ToList();
         }
     }
