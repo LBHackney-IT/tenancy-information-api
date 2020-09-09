@@ -23,7 +23,7 @@ namespace TenancyInformationApi.V1.UseCase
             bool leaseholdsOnly, bool freeholdsOnly)
         {
             limit = limit < 10 ? 10 : limit;
-            limit = limit > 100 ? 100 : limit;
+            limit = limit > 1000 ? 1000 : limit;
             CheckPostcodeValid(postcodeQuery);
 
             var tenancies = _gateway.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly);

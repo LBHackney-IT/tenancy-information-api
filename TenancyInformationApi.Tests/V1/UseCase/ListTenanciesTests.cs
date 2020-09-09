@@ -74,8 +74,8 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         [Test]
         public void IfLimitMoreThanTheMaximumWillUseTheMaximumLimit()
         {
-            SetupMockGatewayToExpectParameters(limit: 100);
-            CallUseCaseWithArgs(400, 0);
+            SetupMockGatewayToExpectParameters(limit: 1000);
+            CallUseCaseWithArgs(4736, 0);
             _mockGateway.Verify();
         }
 
