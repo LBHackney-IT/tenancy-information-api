@@ -78,6 +78,8 @@ To run database tests locally (e.g. via Visual Studio) the `CONNECTION_STRING` e
 
 Note: The Host name needs to be the name of the stub database docker-compose service, in order to run tests via Docker.
 
+If changes to the [database schema](https://github.com/LBHackney-IT/tenancy-information-api/blob/master/database/schema.sql) are made then the docker image for the database will have to be removed and recreated. The `restart-db` make command will do this for you.
+
 ### Agreed Testing Approach
 - Use nUnit, FluentAssertions and Moq
 - Always follow a TDD approach

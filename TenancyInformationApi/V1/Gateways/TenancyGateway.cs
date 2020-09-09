@@ -33,16 +33,74 @@ namespace TenancyInformationApi.V1.Gateways
 
         public List<Tenancy> ListTenancies(int limit, int cursor, string addressQuery, string postcodeQuery, bool leaseholdsOnly, bool freeholdsOnly)
         {
-            var invalidTagRefList = GetInvalidTagRefList();
-            var addressSearchPattern = GetSearchPattern(addressQuery);
-            var postcodeSearchPattern = GetSearchPattern(postcodeQuery);
-            var tenancies = (
+            var tagRefsToRetrieve = TagRefsToReturn(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly,
+                freeholdsOnly);
+            var tenancies = GetTenancyDetailsForTagRefs(tagRefsToRetrieve);
+
+            return GroupByTagRefAndMapToDomain(tenancies);
+        }
+
+        private static List<Tenancy> GroupByTagRefAndMapToDomain(List<DatabaseRecords> tenancies)
+        {
+            return tenancies.GroupBy(t => t.Agreement.TenancyAgreementReference, t => t, (key, grp) =>
+            {
+                var first = grp.First();
+                var domain = first.Agreement.ToDomain(first.AgreementType, first.TenureType, first.Property);
+                domain.Residents = grp.Select(g => g.Resident?.ToDomain()).Where(r => r != null).ToList();
+                return domain;
+            }).ToList();
+        }
+
+        private List<DatabaseRecords> GetTenancyDetailsForTagRefs(List<string> tagRefsToRetrieve)
+        {
+            return (
                 from agreement in _uhContext.UhTenancyAgreements
                 join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
                 join agreementType in _uhContext.UhTenancyAgreementsType on agreement.UhAgreementTypeId.ToString()
                     equals agreementType.UhAgreementTypeId.Trim()
                 join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
-                let tagRefFormattedForPagination = Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "").Replace("Z", ""))
+                join res in _uhContext.UhResidents on agreement.HouseholdReference equals res.HouseReference into rs
+                from resident in rs.DefaultIfEmpty()
+                let tagRefFormattedForPagination =
+                    Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "").Replace("Z", ""))
+                where tagRefsToRetrieve.Contains(agreement.TenancyAgreementReference)
+                where agreementType.LookupType == "ZAG"
+                orderby tagRefFormattedForPagination
+                select new DatabaseRecords
+                {
+                    Agreement = agreement,
+                    TenureType = tenureType,
+                    AgreementType = agreementType,
+                    Property = property,
+                    Resident = resident
+                }).ToList();
+        }
+
+        private class DatabaseRecords
+        {
+            public UhTenancyAgreement Agreement { get; set; }
+            public UhTenureType TenureType { get; set; }
+            public UhAgreementType AgreementType { get; set; }
+            public UHProperty Property { get; set; }
+            public UHResident Resident { get; set; }
+        }
+
+        private List<string> TagRefsToReturn(int limit, int cursor, string addressQuery, string postcodeQuery, bool leaseholdsOnly,
+            bool freeholdsOnly)
+        {
+            var invalidTagRefList = GetInvalidTagRefList();
+            var addressSearchPattern = GetSearchPattern(addressQuery);
+            var postcodeSearchPattern = GetSearchPattern(postcodeQuery);
+
+            return (
+                from agreement in _uhContext.UhTenancyAgreements
+                join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
+                join agreementType in _uhContext.UhTenancyAgreementsType on agreement.UhAgreementTypeId.ToString()
+                    equals agreementType.UhAgreementTypeId.Trim()
+                join property in _uhContext.UhProperties on agreement.PropertyReference equals property
+                    .PropertyReference
+                let tagRefFormattedForPagination =
+                    Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "").Replace("Z", ""))
                 where !invalidTagRefList.Contains(agreement.TenancyAgreementReference)
                 where !EF.Functions.ILike(agreement.TenancyAgreementReference, "DUMMY/%")
                 where agreementType.LookupType == "ZAG"
@@ -55,20 +113,8 @@ namespace TenancyInformationApi.V1.Gateways
                 where string.IsNullOrEmpty(postcodeQuery)
                       || EF.Functions.ILike(property.Postcode.Replace(" ", ""), postcodeSearchPattern)
                 orderby tagRefFormattedForPagination
-                select new
-                {
-                    Agreement = agreement,
-                    TenureType = tenureType,
-                    AgreementType = agreementType,
-                    Property = property,
-                }).Take(limit);
-
-            return tenancies.ToList().Select(t =>
-            {
-                var domain = t.Agreement.ToDomain(t.AgreementType, t.TenureType, t.Property);
-                domain.Residents = _uhContext.UhResidents.Where(r => r.HouseReference == domain.HouseholdReference).ToDomain();
-                return domain;
-            }).ToList();
+                select agreement.TenancyAgreementReference
+            ).Take(limit).ToList();
         }
 
         private static List<string> GetInvalidTagRefList()
