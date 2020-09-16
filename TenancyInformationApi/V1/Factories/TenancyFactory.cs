@@ -27,7 +27,8 @@ namespace TenancyInformationApi.V1.Factories
             {
                 FirstName = resident.FirstName,
                 LastName = resident.LastName,
-                DateOfBirth = residentDateOfBirth
+                DateOfBirth = residentDateOfBirth,
+                PersonNumber = resident.PersonNumber,
             };
         }
 

@@ -27,5 +27,6 @@ namespace TenancyInformationApi.V1.Boundary.Response
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string DateOfBirth { get; set; }
+        public int PersonNumber { get; set; }
     }
 }
