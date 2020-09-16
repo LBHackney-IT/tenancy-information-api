@@ -108,13 +108,15 @@ namespace TenancyInformationApi.Tests.V1.Factories
             {
                 FirstName = "first name",
                 LastName = "last name",
-                DateOfBirth = new DateTime(1980, 12, 28)
+                DateOfBirth = new DateTime(1980, 12, 28),
+                PersonNumber = 4
             };
             dbResident.ToDomain().Should().BeEquivalentTo(new Resident
             {
                 FirstName = "first name",
                 LastName = "last name",
-                DateOfBirth = new DateTime(1980, 12, 28)
+                DateOfBirth = new DateTime(1980, 12, 28),
+                PersonNumber = 4
             });
         }
 
