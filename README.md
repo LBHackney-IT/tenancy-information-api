@@ -1,6 +1,7 @@
 # LBH Tenancy Information API
 
 Tenancy Information API returns information about tenancies held
+The API has 2 endpoints one for retrieving all information aboout tenancies and one for a specific ID
 
 ## Stack
 
