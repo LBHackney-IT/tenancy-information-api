@@ -45,7 +45,9 @@ namespace TenancyInformationApi.V1.Factories
                 FirstName = r.FirstName,
                 LastName = r.LastName,
                 DateOfBirth = r.DateOfBirth?.ToString("yyyy-MM-dd"),
-                PersonNumber = r.PersonNumber
+                PersonNumber = r.PersonNumber,
+                Responsible = r.Responsible,
+                Title = r.Title
             }).ToList();
         }
     }

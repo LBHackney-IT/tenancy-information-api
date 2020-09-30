@@ -106,17 +106,21 @@ namespace TenancyInformationApi.Tests.V1.Factories
         {
             var dbResident = new UHResident
             {
+                Title = "miss",
                 FirstName = "first name",
                 LastName = "last name",
                 DateOfBirth = new DateTime(1980, 12, 28),
-                PersonNumber = 4
+                PersonNumber = 4,
+                Responsible = false
             };
             dbResident.ToDomain().Should().BeEquivalentTo(new Resident
             {
+                Title = "miss",
                 FirstName = "first name",
                 LastName = "last name",
                 DateOfBirth = new DateTime(1980, 12, 28),
-                PersonNumber = 4
+                PersonNumber = 4,
+                Responsible = false
             });
         }
 

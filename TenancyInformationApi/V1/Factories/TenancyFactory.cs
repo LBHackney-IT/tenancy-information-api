@@ -25,10 +25,12 @@ namespace TenancyInformationApi.V1.Factories
                 : resident.DateOfBirth;
             return new Resident
             {
+                Title = resident.Title,
                 FirstName = resident.FirstName,
                 LastName = resident.LastName,
                 DateOfBirth = residentDateOfBirth,
                 PersonNumber = resident.PersonNumber,
+                Responsible = resident.Responsible
             };
         }
 
