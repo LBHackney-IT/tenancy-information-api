@@ -24,9 +24,11 @@ namespace TenancyInformationApi.V1.Boundary.Response
 
     public class Resident
     {
+        public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string DateOfBirth { get; set; }
         public int PersonNumber { get; set; }
+        public bool Responsible { get; set; }
     }
 }

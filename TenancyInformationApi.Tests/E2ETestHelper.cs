@@ -50,7 +50,9 @@ namespace TenancyInformationApi.Tests
                         FirstName = resident.FirstName,
                         LastName = resident.LastName,
                         DateOfBirth = resident.DateOfBirth.ToString("yyyy-MM-dd"),
-                        PersonNumber = resident.PersonNumber
+                        PersonNumber = resident.PersonNumber,
+                        Responsible = resident.Responsible,
+                        Title = resident.Title
                     }
                 }
             };

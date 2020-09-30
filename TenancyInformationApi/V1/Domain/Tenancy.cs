@@ -25,9 +25,11 @@ namespace TenancyInformationApi.V1.Domain
 
     public class Resident
     {
+        public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public int PersonNumber { get; set; }
+        public bool Responsible { get; set; }
     }
 }
