@@ -11,6 +11,9 @@ namespace TenancyInformationApi.V1.Boundary
         [FromQuery(Name = "postcode")]
         public string Postcode { get; set; }
 
+        [FromQuery(Name = "property_reference")]
+        public string PropertyReference { get; set; }
+
         [FromQuery(Name = "freehold_only")]
         [DefaultValue(false)]
         public bool FreeholdsOnly { get; set; } = false;

@@ -36,8 +36,9 @@ namespace TenancyInformationApi.V1.Controllers
         {
             try
             {
-                return Ok(_listTenancies.Execute(queryParameters.Limit, queryParameters.Cursor, queryParameters.Address,
-                    queryParameters.Postcode, queryParameters.LeaseholdsOnly, queryParameters.FreeholdsOnly));
+                return Ok(_listTenancies.Execute(queryParameters.Limit, queryParameters.Cursor,
+                            queryParameters.Address, queryParameters.Postcode, queryParameters.LeaseholdsOnly,
+                            queryParameters.FreeholdsOnly, queryParameters.PropertyReference));
 
             }
             catch (InvalidQueryParameterException exception)

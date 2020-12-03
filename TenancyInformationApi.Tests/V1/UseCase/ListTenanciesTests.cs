@@ -151,7 +151,7 @@ namespace TenancyInformationApi.Tests.V1.UseCase
             SetupMockGatewayToExpectParameters(postcodeQuery: postcode);
             _mockPostcodeValidator.Setup(x => x.Execute(postcode)).Returns(false);
 
-            Func<ListTenanciesResponse> testDelegate = () => _classUnderTest.Execute(15, 3, null, postcode, false, false);
+            Func<ListTenanciesResponse> testDelegate = () => _classUnderTest.Execute(15, 3, null, postcode, false, false, null);
             testDelegate.Should().Throw<InvalidQueryParameterException>()
                 .WithMessage("The Postcode given does not have a valid format");
         }
@@ -178,11 +178,11 @@ namespace TenancyInformationApi.Tests.V1.UseCase
 
         private void SetupMockGatewayToExpectParameters(int? limit = null, int? cursor = null,
             string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false,
-            IEnumerable<Tenancy> stubbedTenancies = null)
+            IEnumerable<Tenancy> stubbedTenancies = null, string propertyReference = null)
         {
             _mockGateway
                 .Setup(x =>
-                    x.ListTenancies(It.Is<int>(l => CheckParameter(limit, l)), cursor ?? It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly))
+                    x.ListTenancies(It.Is<int>(l => CheckParameter(limit, l)), cursor ?? It.IsAny<int>(), addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly, propertyReference))
                 .Returns(stubbedTenancies?.ToList() ?? new List<Tenancy>()).Verifiable();
         }
 
@@ -192,9 +192,9 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         }
 
         private ListTenanciesResponse CallUseCaseWithArgs(int limit, int cursor, string address = null, string postcode = null,
-            bool leaseholdsOnly = false, bool freeholdsOnly = false)
+            bool leaseholdsOnly = false, bool freeholdsOnly = false, string propertyReference = null)
         {
-            return _classUnderTest.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly);
+            return _classUnderTest.Execute(limit, cursor, address, postcode, leaseholdsOnly, freeholdsOnly, propertyReference);
         }
     }
 }

@@ -355,9 +355,9 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return property;
         }
 
-        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false)
+        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false, string propertyReference = null)
         {
-            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly);
+            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly, propertyReference);
         }
     }
 }
