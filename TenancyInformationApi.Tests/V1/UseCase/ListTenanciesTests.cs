@@ -145,6 +145,16 @@ namespace TenancyInformationApi.Tests.V1.UseCase
         }
 
         [Test]
+        public void ExecuteCallsTheGatewayWithPropertyReferenceQueryParameter()
+        {
+            var propertyReference = _fixture.Create<string>();
+            SetupMockGatewayToExpectParameters(propertyReference: propertyReference);
+
+            CallUseCaseWithArgs(20, 0, propertyReference: propertyReference);
+            _mockGateway.Verify();
+        }
+
+        [Test]
         public void IfPostcodeQueryIsInvalidExecuteWillReturnBadRequest()
         {
             var postcode = "E8881DY";

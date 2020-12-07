@@ -6,7 +6,8 @@ namespace TenancyInformationApi.Tests.V1.Helper
 {
     public static class TestHelper
     {
-        public static UhTenancyAgreement CreateDatabaseTenancyEntity(string tenancyReference, string agreementTypeRef, string tenureTypeLookupId = null)
+        public static UhTenancyAgreement CreateDatabaseTenancyEntity(string tenancyReference, string agreementTypeRef,
+            string propertyReference, string tenureTypeLookupId = null)
         {
             var fixture = new Fixture();
             var fp = fixture.Build<UhTenancyAgreement>()
@@ -15,6 +16,7 @@ namespace TenancyInformationApi.Tests.V1.Helper
                 .Create();
             fp.UhTenureTypeId = tenureTypeLookupId ?? fp.UhTenureTypeId;
             fp.TenancyAgreementReference = tenancyReference ?? fp.TenancyAgreementReference;
+            fp.PropertyReference = propertyReference ?? fp.PropertyReference;
             fp.UhAgreementTypeId = agreementTypeRef.First();
             return fp;
         }

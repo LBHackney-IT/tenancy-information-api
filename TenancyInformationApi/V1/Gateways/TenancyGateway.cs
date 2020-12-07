@@ -98,8 +98,7 @@ namespace TenancyInformationApi.V1.Gateways
                 join tenureType in _uhContext.UhTenure on agreement.UhTenureTypeId equals tenureType.UhTenureTypeId
                 join agreementType in _uhContext.UhTenancyAgreementsType on agreement.UhAgreementTypeId.ToString()
                     equals agreementType.UhAgreementTypeId.Trim()
-                join property in _uhContext.UhProperties on agreement.PropertyReference equals property
-                    .PropertyReference
+                join property in _uhContext.UhProperties on agreement.PropertyReference equals property.PropertyReference
                 let tagRefFormattedForPagination =
                     Convert.ToInt32(agreement.TenancyAgreementReference.Replace("/", "").Replace("Z", ""))
                 where !invalidTagRefList.Contains(agreement.TenancyAgreementReference)
@@ -114,7 +113,7 @@ namespace TenancyInformationApi.V1.Gateways
                 where string.IsNullOrEmpty(postcodeQuery)
                       || EF.Functions.ILike(property.Postcode.Replace(" ", ""), postcodeSearchPattern)
                 where string.IsNullOrEmpty(propertyReference)
-                      || EF.Functions.ILike(property.PropertyReference.Replace(" ", ""), propertyReference)
+                      || EF.Functions.ILike(property.PropertyReference, propertyReference)
                 orderby tagRefFormattedForPagination
                 select agreement.TenancyAgreementReference
             ).Take(limit).ToList();
