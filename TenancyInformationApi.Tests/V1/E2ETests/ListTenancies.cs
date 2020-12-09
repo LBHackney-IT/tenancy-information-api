@@ -159,6 +159,24 @@ namespace TenancyInformationApi.Tests.V1.E2ETests
             returnedTenancies.Tenancies.First().Should().BeEquivalentTo(expectedResponses.First());
         }
 
+        [Test]
+        public async Task WithPropertyReferenceQueryParameterReturnMatchingTenancies()
+        {
+            var expectedResponses = new List<TenancyInformationResponse>
+            {
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "12345/2", "a", "x", propertyReference: "458793848572"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "54326/9", "b", "y", propertyReference: "293885029348"),
+                E2ETestHelper.AddPersonWithRelatedEntitiesToDb(DatabaseContext, "453627/2", "c", "z", propertyReference: "359819238534"),
+            };
+
+            var response = await CallApiListEndpointWithQueryString("?property_reference=458793848572").ConfigureAwait(true);
+            response.StatusCode.Should().Be(200);
+
+            var returnedTenancies = await DeserializeResponse(response).ConfigureAwait(true);
+            returnedTenancies.Tenancies.Count.Should().Be(1);
+            returnedTenancies.Tenancies.First().Should().BeEquivalentTo(expectedResponses.First());
+        }
+
         private static string GetLetterFromAlphabetPosition(int position)
         {
             // Being used to generate ordered string based ID's which are all unique. To help test pagination and prevent duplicate key errors in test setup.

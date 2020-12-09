@@ -261,7 +261,7 @@ namespace TenancyInformationApi.Tests.V1.Gateways
                 "DUMMY/Z536"
             };
             fakeTagRefs.ForEach(t => SaveTenancyPropertyAndLookups(tagRef: t, agreementLookupId: t.Last().ToString()));
-            var legitimateTenancy = SaveTenancyPropertyAndLookups("12367/2", "z");
+            var legitimateTenancy = SaveTenancyPropertyAndLookups("12367/2", agreementLookupId: "z");
 
             var response = CallGatewayWithArgs();
             response.Count.Should().Be(1);
@@ -302,23 +302,24 @@ namespace TenancyInformationApi.Tests.V1.Gateways
         }
 
         private (UhTenancyAgreement uhTenancy, UhTenureType tenureTypeLookup, UhAgreementType agreementTypeLookup,
-            UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null, string agreementLookupId = null, string tenureTypeId = null,
+            UHProperty property) SaveTenancyPropertyAndLookups(string tagRef = null, string propRef = null, string agreementLookupId = null, string tenureTypeId = null,
                 string address = null, string postcode = null)
         {
             var faker = new Faker();
             tagRef ??= $"{faker.Random.Int(0, 99999)}/{faker.Random.Int(0, 99)}";
+            propRef ??= $"{faker.Random.Long(100000000000, 999999999999)}";
             var tenureTypeLookup = AddTenureTypeLookupToDatabase(tenureTypeId);
             var agreementTypeLookup = AddAgreementTypeLookupToDatabase(agreementLookupId);
-            var uhTenancy = AddTenancyAgreementToDatabase(tagRef, agreementTypeLookup, tenureTypeLookup);
+            var uhTenancy = AddTenancyAgreementToDatabase(tagRef, propRef, agreementTypeLookup, tenureTypeLookup);
             var property = AddPropertyToDatabase(uhTenancy.PropertyReference, address, postcode);
             return (uhTenancy, tenureTypeLookup, agreementTypeLookup, property);
         }
 
-        private UhTenancyAgreement AddTenancyAgreementToDatabase(string tagRef, UhAgreementType agreementTypeLookup,
+        private UhTenancyAgreement AddTenancyAgreementToDatabase(string tagRef, string propRef, UhAgreementType agreementTypeLookup,
             UhTenureType tenureTypeLookup)
         {
             var uhTenancy = TestHelper.CreateDatabaseTenancyEntity(tagRef, agreementTypeLookup.UhAgreementTypeId,
-                tenureTypeLookup.UhTenureTypeId);
+                propRef, tenureTypeLookup.UhTenureTypeId);
 
             UhContext.UhTenancyAgreements.Add(uhTenancy);
             UhContext.SaveChanges();
@@ -355,9 +356,9 @@ namespace TenancyInformationApi.Tests.V1.Gateways
             return property;
         }
 
-        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false)
+        private List<Tenancy> CallGatewayWithArgs(int limit = 20, int cursor = 0, string addressQuery = null, string postcodeQuery = null, bool leaseholdsOnly = false, bool freeholdsOnly = false, string propertyReference = null)
         {
-            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly);
+            return _classUnderTest.ListTenancies(limit, cursor, addressQuery, postcodeQuery, leaseholdsOnly, freeholdsOnly, propertyReference);
         }
     }
 }

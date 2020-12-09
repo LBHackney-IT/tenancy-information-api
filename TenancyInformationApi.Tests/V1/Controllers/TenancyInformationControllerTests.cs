@@ -75,7 +75,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             };
             _listTenancies
                 .Setup(x => x.Execute(queryParameters.Limit, queryParameters.Cursor, It.IsAny<string>(),
-                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies(queryParameters) as ObjectResult;
             response.StatusCode.Should().Be(200);
@@ -91,7 +91,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
             };
             _listTenancies
                 .Setup(x => x.Execute(20, 0, It.IsAny<string>(),
-                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Returns(stubbedResponse);
             var response = _classUnderTest.ListTenancies(new QueryParameters()) as ObjectResult;
             response.StatusCode.Should().Be(200);
@@ -106,11 +106,13 @@ namespace TenancyInformationApi.Tests.V1.Controllers
                 Address = _fixture.Create<string>(),
                 Postcode = _fixture.Create<string>(),
                 FreeholdsOnly = _fixture.Create<bool>(),
-                LeaseholdsOnly = _fixture.Create<bool>()
+                LeaseholdsOnly = _fixture.Create<bool>(),
+                PropertyReference = _fixture.Create<string>()
             };
             _classUnderTest.ListTenancies(queryParameters);
             _listTenancies.Verify(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(),
-                queryParameters.Address, queryParameters.Postcode, queryParameters.LeaseholdsOnly, queryParameters.FreeholdsOnly));
+                queryParameters.Address, queryParameters.Postcode, queryParameters.LeaseholdsOnly,
+                queryParameters.FreeholdsOnly, queryParameters.PropertyReference));
         }
 
         [Test]
@@ -118,7 +120,7 @@ namespace TenancyInformationApi.Tests.V1.Controllers
         {
             _listTenancies
                 .Setup(x => x.Execute(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
-                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                    It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Throws(new InvalidQueryParameterException("The parameters are all wrong"));
             var response = _classUnderTest.ListTenancies(new QueryParameters()) as ObjectResult;
             response.StatusCode.Should().Be(400);

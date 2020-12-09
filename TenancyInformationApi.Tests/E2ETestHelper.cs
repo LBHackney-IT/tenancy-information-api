@@ -10,16 +10,16 @@ namespace TenancyInformationApi.Tests
     {
         public static TenancyInformationResponse AddPersonWithRelatedEntitiesToDb(UhContext context,
             string tenancyReference = null, string agreementId = null, string tenureTypeId = null,
-            string address = null, string postcode = null)
+            string address = null, string postcode = null, string propertyReference = null)
         {
             var agreementLookup = AddAgreementTypeToDatabase(context, agreementId);
             var tenureTypeLookup = AddTenureTypeToDatabase(context, tenureTypeId);
 
-            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, tenureTypeLookup.UhTenureTypeId);
+            var tenancyAgreement = TestHelper.CreateDatabaseTenancyEntity(tenancyReference, agreementLookup.UhAgreementTypeId, propertyReference, tenureTypeLookup.UhTenureTypeId);
             context.UhTenancyAgreements.Add(tenancyAgreement);
             context.SaveChanges();
 
-            var property = TestHelper.CreateDatabaseProperty(tenancyAgreement.PropertyReference, address, postcode);
+            var property = TestHelper.CreateDatabaseProperty(propertyReference ?? tenancyAgreement.PropertyReference, address, postcode);
             context.UhProperties.Add(property);
             context.SaveChanges();
 
@@ -31,7 +31,7 @@ namespace TenancyInformationApi.Tests
             {
                 TenancyAgreementReference = tenancyAgreement.TenancyAgreementReference,
                 HouseholdReference = tenancyAgreement.HouseholdReference,
-                PropertyReference = tenancyAgreement.PropertyReference,
+                PropertyReference = property.PropertyReference,
                 Address = property.AddressLine1,
                 Postcode = property.Postcode,
                 PaymentReference = tenancyAgreement.PaymentReference,
